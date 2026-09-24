@@ -1,0 +1,12 @@
+F:\CulinaryBlog\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.deps.json
+F:\CulinaryBlog\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.dll
+F:\CulinaryBlog\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.pdb
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.GeneratedMSBuildEditorConfig.editorconfig
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.AssemblyInfoInputs.cache
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.AssemblyInfo.cs
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.csproj.CoreCompileInputs.cache
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.dll
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\refint\CulinaryBlog.Domain.dll
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.pdb
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\ref\CulinaryBlog.Domain.dll
+F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\Culinary.E9A90C16.Up2Date
