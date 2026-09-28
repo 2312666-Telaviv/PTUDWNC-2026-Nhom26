@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {}
+    "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {}
   },
   "projects": {
-    "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {
+    "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+        "projectUniqueName": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
         "projectName": "CulinaryBlog.Domain",
-        "projectPath": "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+        "projectPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\obj\\",
+        "outputPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -51,6 +51,12 @@
         "net10.0": {
           "framework": "net10.0",
           "targetAlias": "net10.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.12, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

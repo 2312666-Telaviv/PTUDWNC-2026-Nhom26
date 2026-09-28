@@ -10,3 +10,17 @@ F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\refint\CulinaryBlog.Do
 F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.pdb
 F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\ref\CulinaryBlog.Domain.dll
 F:\CulinaryBlog\src\CulinaryBlog.Domain\obj\Debug\net10.0\Culinary.E9A90C16.Up2Date
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.deps.json
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.dll
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\bin\Debug\net10.0\CulinaryBlog.Domain.pdb
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.GeneratedMSBuildEditorConfig.editorconfig
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.AssemblyInfoInputs.cache
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.AssemblyInfo.cs
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.csproj.CoreCompileInputs.cache
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.sourcelink.json
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.dll
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\refint\CulinaryBlog.Domain.dll
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.pdb
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\ref\CulinaryBlog.Domain.dll
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\Culinary.E9A90C16.Up2Date
+F:\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.csproj.AssemblyReference.cache

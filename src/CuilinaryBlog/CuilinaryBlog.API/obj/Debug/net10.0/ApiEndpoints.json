@@ -78,6 +78,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CulinaryBlog.API.Controllers.RecipesController",
+    "Method": "GetRecipes",
+    "RelativePath": "api/v1/recipes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mode",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "CuilinaryBlog.API.Controllers.WeatherForecastController",
     "Method": "Get",
     "RelativePath": "WeatherForecast",

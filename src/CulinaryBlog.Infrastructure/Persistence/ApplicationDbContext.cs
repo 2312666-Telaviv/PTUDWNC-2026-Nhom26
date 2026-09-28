@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using CulinaryBlog.Domain.Entities;
 
 namespace CulinaryBlog.Infrastructure.Persistence
 {
@@ -9,6 +10,7 @@ namespace CulinaryBlog.Infrastructure.Persistence
         {
         }
 
+        public DbSet<Recipe> Recipes { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
