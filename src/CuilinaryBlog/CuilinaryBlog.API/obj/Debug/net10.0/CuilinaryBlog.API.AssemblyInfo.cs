@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CuilinaryBlog.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ff70c466f7dc0f48318d548862f8cbf5c0a99b7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+300ca63f91df9e9c856544e7680436135d1a5745")]
 [assembly: System.Reflection.AssemblyProductAttribute("CuilinaryBlog.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CuilinaryBlog.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

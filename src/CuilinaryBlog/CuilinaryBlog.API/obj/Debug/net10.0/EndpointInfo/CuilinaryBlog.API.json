@@ -156,6 +156,18 @@
         }
       }
     },
+    "/api/v1/recipes/benchmark": {
+      "get": {
+        "tags": [
+          "Recipes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [

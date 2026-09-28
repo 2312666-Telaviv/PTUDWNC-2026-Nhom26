@@ -3,12 +3,21 @@
   "WorkspaceRootPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|f:\\ptudwnc-2026-nhom26\\src\\cuilinaryblog\\cuilinaryblog.api\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|solutionrelative:cuilinaryblog.api\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\entities\\ingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|f:\\ptudwnc-2026-nhom26\\src\\cuilinaryblog\\cuilinaryblog.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|solutionrelative:cuilinaryblog.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|f:\\ptudwnc-2026-nhom26\\src\\cuilinaryblog\\cuilinaryblog.api\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|solutionrelative:cuilinaryblog.api\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928133455_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\entities\\step.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E3AD3A88-1940-6524-B273-624FB76C8C4A}|..\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.infrastructure\\migrations\\20260928114528_initialrecipetables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -18,13 +27,7 @@
       "RelativeMoniker": "D:0:0:{10D6BC35-78F0-672B-4F1E-272392F75652}|CuilinaryBlog.API\\CuilinaryBlog.API.csproj|solutionrelative:cuilinaryblog.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\entities\\ingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\entities\\recipe.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\entities\\step.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DB6D65C8-63C2-0ADC-2BE1-FD6F0678C116}|..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj|f:\\ptudwnc-2026-nhom26\\src\\culinaryblog.domain\\culinaryblog.domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
@@ -79,36 +82,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "20260928114528_InitialRecipeTables.cs",
-              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
-              "RelativeDocumentMoniker": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
-              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
-              "RelativeToolTip": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
+              "DocumentIndex": 3,
+              "Title": "20260928133455_InitialCreate.cs",
+              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928133455_InitialCreate.cs",
+              "RelativeDocumentMoniker": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928133455_InitialCreate.cs",
+              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928133455_InitialCreate.cs",
+              "RelativeToolTip": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928133455_InitialCreate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-28T11:45:28.924Z",
+              "WhenOpened": "2026-09-28T13:34:55.861Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "CulinaryBlog.Domain.csproj",
-              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
-              "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
-              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
-              "RelativeToolTip": "..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-09-28T11:35:04.334Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
               "Title": "Recipe.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Recipe.cs",
               "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\Entities\\Recipe.cs",
@@ -120,7 +111,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Persistence\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "..\\CulinaryBlog.Infrastructure\\Persistence\\ApplicationDbContext.cs",
@@ -132,20 +123,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "RecipesController.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers\\RecipesController.cs",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\Controllers\\RecipesController.cs",
               "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers\\RecipesController.cs",
               "RelativeToolTip": "CuilinaryBlog.API\\Controllers\\RecipesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADcAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAADwAAAAAAAAAAAAkwFYAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-28T11:19:43.416Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "appsettings.json",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\appsettings.json",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\appsettings.json",
@@ -158,31 +149,57 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Step.cs",
-              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Step.cs",
-              "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\Entities\\Step.cs",
-              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Step.cs",
-              "RelativeToolTip": "..\\CulinaryBlog.Domain\\Entities\\Step.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAAwA0AAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-28T11:36:37.652Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "Ingredient.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Ingredient.cs",
               "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\Entities\\Ingredient.cs",
               "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Ingredient.cs",
               "RelativeToolTip": "..\\CulinaryBlog.Domain\\Entities\\Ingredient.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAxwBAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-28T11:37:11.095Z"
+              "WhenOpened": "2026-09-28T11:37:11.095Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 8,
+              "Title": "CulinaryBlog.Domain.csproj",
+              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+              "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+              "RelativeToolTip": "..\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-09-28T11:35:04.334Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Step.cs",
+              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Step.cs",
+              "RelativeDocumentMoniker": "..\\CulinaryBlog.Domain\\Entities\\Step.cs",
+              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\Entities\\Step.cs",
+              "RelativeToolTip": "..\\CulinaryBlog.Domain\\Entities\\Step.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA0AAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-28T11:36:37.652Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "20260928114528_InitialRecipeTables.cs",
+              "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
+              "RelativeDocumentMoniker": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
+              "ToolTip": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
+              "RelativeToolTip": "..\\CulinaryBlog.Infrastructure\\Migrations\\20260928114528_InitialRecipeTables.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-28T11:45:28.924Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "AuthController.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\Controllers\\AuthController.cs",
@@ -194,7 +211,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "LoginDto.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Application\\DTOs\\LoginDto.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Application\\DTOs\\LoginDto.cs",
@@ -206,7 +223,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "CulinaryBlog.Domain.csproj",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
@@ -218,7 +235,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "CulinaryBlog.Application.csproj",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj",
@@ -230,7 +247,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Program.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Program.cs",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\Program.cs",
@@ -242,7 +259,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "TokenService.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Services\\TokenService.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Services\\TokenService.cs",
@@ -254,7 +271,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "ITokenService.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Application\\Services\\ITokenService.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Application\\Services\\ITokenService.cs",
@@ -266,7 +283,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "RegisterDto.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Application\\DTOs\\RegisterDto.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Application\\DTOs\\RegisterDto.cs",
@@ -278,7 +295,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Persistence\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Persistence\\ApplicationDbContext.cs",
@@ -290,7 +307,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "CulinaryBlog.Infrastructure.csproj",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
@@ -302,7 +319,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "BlogController.cs",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers\\BlogController.cs",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\Controllers\\BlogController.cs",
@@ -314,7 +331,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "20260924055938_InitialIdentityMigration.cs",
               "DocumentMoniker": "F:\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260924055938_InitialIdentityMigration.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\CulinaryBlog\\src\\CulinaryBlog.Infrastructure\\Migrations\\20260924055938_InitialIdentityMigration.cs",
@@ -326,7 +343,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "CuilinaryBlog.API.csproj",
               "DocumentMoniker": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\CuilinaryBlog.API.csproj",
               "RelativeDocumentMoniker": "CuilinaryBlog.API\\CuilinaryBlog.API.csproj",
