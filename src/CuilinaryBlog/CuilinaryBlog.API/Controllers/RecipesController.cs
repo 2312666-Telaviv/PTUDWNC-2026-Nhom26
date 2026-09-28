@@ -1,4 +1,5 @@
-﻿using CulinaryBlog.Domain.Entities;
+﻿using CulinaryBlog.Application.Features.Recipes;
+using CulinaryBlog.Domain.Entities;
 using CulinaryBlog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,40 +11,45 @@ namespace CulinaryBlog.API.Controllers
     [ApiController]
     public class RecipesController : ControllerBase
     {
+        private readonly CreateRecipeCommandHandler _handler;
         private readonly ApplicationDbContext _context;
 
-        public RecipesController(ApplicationDbContext context)
+        public RecipesController(
+            CreateRecipeCommandHandler handler,
+            ApplicationDbContext context)
         {
+            _handler = handler;
             _context = context;
         }
 
+        // ===== POST tạo recipe (dùng Handler + UnitOfWork) =====
+        [HttpPost]
+        public async Task<IActionResult> CreateRecipe([FromBody] CreateRecipeCommand command)
+        {
+            var recipeId = await _handler.Handle(command);
+            return Ok(new { Message = "Tạo thành công!", RecipeId = recipeId });
+        }
+
+        // ===== GET danh sách (giữ lại để làm câu Query Optimization) =====
         [HttpGet]
         public async Task<IActionResult> GetRecipes([FromQuery] string mode = "split")
         {
-            // 1. Bắt đầu đo thời gian
             var stopwatch = Stopwatch.StartNew();
 
-            List<Recipe> recipes;
-
-            // 2. Truy vấn dữ liệu kèm theo author, steps, ingredients
             var query = _context.Recipes
                 .Include(r => r.Author)
                 .Include(r => r.Steps)
                 .Include(r => r.Ingredients);
 
-            // 3. So sánh giữa 2 cách: Dùng AsSplitQuery (tối ưu cho quan hệ 1-nhiều) hoặc Single Query thông thường
+            List<Recipe> recipes;
+
             if (mode.ToLower() == "split")
-            {
                 recipes = await query.AsSplitQuery().ToListAsync();
-            }
             else
-            {
                 recipes = await query.ToListAsync();
-            }
 
             stopwatch.Stop();
 
-            // Trả về kết quả kèm thời gian xử lý để kiểm chứng
             return Ok(new
             {
                 ExecutionTimeMs = stopwatch.ElapsedMilliseconds,

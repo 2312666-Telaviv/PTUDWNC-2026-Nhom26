@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CulinaryBlog.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ff70c466f7dc0f48318d548862f8cbf5c0a99b7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a70dda364e3b5afe41683accb7321021ec3d01d")]
 [assembly: System.Reflection.AssemblyProductAttribute("CulinaryBlog.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CulinaryBlog.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

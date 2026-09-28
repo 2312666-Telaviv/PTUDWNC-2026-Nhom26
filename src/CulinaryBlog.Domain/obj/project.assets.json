@@ -1061,23 +1061,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
+    "C:\\Users\\KIEU HOANG LINH\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+      "projectUniqueName": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
       "projectName": "CulinaryBlog.Domain",
-      "projectPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
-      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\obj\\",
+      "projectPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj",
+      "packagesPath": "C:\\Users\\KIEU HOANG LINH\\.nuget\\packages\\",
+      "outputPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\KIEU HOANG LINH\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

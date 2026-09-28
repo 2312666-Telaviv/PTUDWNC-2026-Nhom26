@@ -79,6 +79,22 @@
   },
   {
     "ContainingType": "CulinaryBlog.API.Controllers.RecipesController",
+    "Method": "CreateRecipe",
+    "RelativePath": "api/v1/recipes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "command",
+        "Type": "CulinaryBlog.Application.Features.Recipes.CreateRecipeCommand",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CulinaryBlog.API.Controllers.RecipesController",
     "Method": "GetRecipes",
     "RelativePath": "api/v1/recipes",
     "HttpMethod": "GET",

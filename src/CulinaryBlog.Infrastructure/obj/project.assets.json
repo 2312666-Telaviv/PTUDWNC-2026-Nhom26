@@ -3448,23 +3448,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
+    "C:\\Users\\KIEU HOANG LINH\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
+      "projectUniqueName": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
       "projectName": "CulinaryBlog.Infrastructure",
-      "projectPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
-      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\obj\\",
+      "projectPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\CulinaryBlog.Infrastructure.csproj",
+      "packagesPath": "C:\\Users\\KIEU HOANG LINH\\.nuget\\packages\\",
+      "outputPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\KIEU HOANG LINH\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3480,11 +3480,11 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj": {
-              "projectPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj"
+            "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj": {
+              "projectPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Application\\CulinaryBlog.Application.csproj"
             },
-            "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {
-              "projectPath": "F:\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj"
+            "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj": {
+              "projectPath": "D:\\dowload\\PTUDWNC-2026-Nhom26\\src\\CulinaryBlog.Domain\\CulinaryBlog.Domain.csproj"
             }
           }
         }
