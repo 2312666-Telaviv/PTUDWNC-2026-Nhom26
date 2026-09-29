@@ -4,8 +4,14 @@
     "\\src",
     "\\src\\CuilinaryBlog",
     "\\src\\CuilinaryBlog\\CuilinaryBlog.API",
-    "\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers"
+    "\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers",
+    "\\src\\CulinaryBlog.Application",
+    "\\src\\CulinaryBlog.Application\\Features",
+    "\\src\\CulinaryBlog.Application\\Features\\Recipes",
+    "\\src\\CulinaryBlog.Infrastructure",
+    "\\src\\CulinaryBlog.Infrastructure\\Persistence",
+    "\\src\\CulinaryBlog.Infrastructure\\Services"
   ],
-  "SelectedNode": "\\src\\CuilinaryBlog\\CuilinaryBlog.API\\Controllers\\WeatherForecastController.cs",
+  "SelectedNode": "\\src\\CulinaryBlog.Infrastructure\\Persistence\\UnitOfWork.cs",
   "PreviewInSolutionExplorer": false
 }

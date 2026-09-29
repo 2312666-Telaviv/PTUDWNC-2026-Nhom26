@@ -41,6 +41,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Bắt lỗi toàn cục + trả về Problem Details
+app.UseMiddleware<CulinaryBlog.API.Middleware.ExceptionHandlingMiddleware>();
+
 // Đăng ký UnitOfWork
 builder.Services.AddScoped<CulinaryBlog.Application.Contracts.IUnitOfWork,
     CulinaryBlog.Infrastructure.Persistence.UnitOfWork>();

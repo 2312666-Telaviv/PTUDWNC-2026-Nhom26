@@ -37,4 +37,3 @@ D:\dowload\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\Culinar
 D:\dowload\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\refint\CulinaryBlog.Domain.dll
 D:\dowload\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\CulinaryBlog.Domain.pdb
 D:\dowload\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\ref\CulinaryBlog.Domain.dll
-D:\dowload\PTUDWNC-2026-Nhom26\src\CulinaryBlog.Domain\obj\Debug\net10.0\Culinary.E9A90C16.Up2Date

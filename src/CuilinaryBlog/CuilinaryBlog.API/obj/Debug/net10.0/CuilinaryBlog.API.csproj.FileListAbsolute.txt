@@ -428,4 +428,3 @@ D:\dowload\PTUDWNC-2026-Nhom26\src\CuilinaryBlog\CuilinaryBlog.API\obj\Debug\net
 D:\dowload\PTUDWNC-2026-Nhom26\src\CuilinaryBlog\CuilinaryBlog.API\obj\Debug\net10.0\CuilinaryBlog.API.genruntimeconfig.cache
 D:\dowload\PTUDWNC-2026-Nhom26\src\CuilinaryBlog\CuilinaryBlog.API\obj\Debug\net10.0\ref\CuilinaryBlog.API.dll
 D:\dowload\PTUDWNC-2026-Nhom26\src\CuilinaryBlog\CuilinaryBlog.API\bin\Debug\net10.0\Scalar.AspNetCore.dll
-D:\dowload\PTUDWNC-2026-Nhom26\src\CuilinaryBlog\CuilinaryBlog.API\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
