@@ -134,6 +134,40 @@
         }
       }
     },
+    "/api/v1/recipes": {
+      "get": {
+        "tags": [
+          "Recipes"
+        ],
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "split"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/recipes/benchmark": {
+      "get": {
+        "tags": [
+          "Recipes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -249,6 +283,9 @@
     },
     {
       "name": "Blog"
+    },
+    {
+      "name": "Recipes"
     },
     {
       "name": "WeatherForecast"

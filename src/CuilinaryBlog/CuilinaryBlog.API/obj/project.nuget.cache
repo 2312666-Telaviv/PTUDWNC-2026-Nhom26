@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LGkOOkmg4wM=",
+  "dgSpecHash": "qViMk2F6ifw=",
   "success": true,
-  "projectFilePath": "F:\\CulinaryBlog\\src\\CuilinaryBlog\\CuilinaryBlog.API\\CuilinaryBlog.API.csproj",
+  "projectFilePath": "F:\\PTUDWNC-2026-Nhom26\\src\\CuilinaryBlog\\CuilinaryBlog.API\\CuilinaryBlog.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ADMIN\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
