@@ -58,5 +58,38 @@ namespace CulinaryBlog.API.Controllers
                 Data = recipes
             });
         }
+
+
+        [HttpGet("benchmark")]
+        public async Task<IActionResult> BenchmarkRecipes()
+        {
+            var sw = Stopwatch.StartNew();
+
+            // 1. Query CÓ Tracking (Mặc định)
+            sw.Restart();
+            var recipesWithTracking = await _context.Recipes
+                .Include(r => r.Steps)
+                .Include(r => r.Ingredients)
+                .Take(100)
+                .ToListAsync();
+            long timeWithTracking = sw.ElapsedMilliseconds;
+
+            // 2. Query KHÔNG CÓ AsNoTracking
+            sw.Restart();
+            var recipesNoTracking = await _context.Recipes
+                .AsNoTracking()
+                .Include(r => r.Steps)
+                .Include(r => r.Ingredients)
+                .Take(100)
+                .ToListAsync();
+            long timeNoTracking = sw.ElapsedMilliseconds;
+
+            return Ok(new
+            {
+                Message = "So sánh thời gian thực thi giữa có và không có AsNoTracking với 100 recipes",
+                WithTracking_Ms = timeWithTracking,
+                AsNoTracking_Ms = timeNoTracking
+            });
+        }
     }
 }
