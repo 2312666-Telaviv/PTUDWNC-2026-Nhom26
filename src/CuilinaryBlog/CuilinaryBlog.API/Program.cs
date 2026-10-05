@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Bắt lỗi toàn cục + trả về Problem Details
+app.UseMiddleware<CulinaryBlog.API.Middleware.ExceptionHandlingMiddleware>();
+
+// Đăng ký UnitOfWork
+builder.Services.AddScoped<CulinaryBlog.Application.Contracts.IUnitOfWork,
+    CulinaryBlog.Infrastructure.Persistence.UnitOfWork>();
+
+// Đăng ký Handler
+builder.Services.AddScoped<CulinaryBlog.Application.Features.Recipes.CreateRecipeCommandHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -72,5 +83,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 
 app.Run();
