@@ -20,6 +20,18 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Chế độ Mock và tài khoản demo
+
+Khi `USE_MOCK_API=true` / `NEXT_PUBLIC_USE_MOCK_API=true`, ứng dụng không cần backend .NET:
+
+- Đăng nhập bằng tài khoản demo: **demo@culinary.vn** / **Demo@123**
+- Danh sách công thức lấy từ `lib/mock/recipes.ts`
+- Bình luận phân trang (mỗi trang 10, tổng ~25) lấy từ route handler `app/api/mock/comments`
+
+## Đăng nhập Google (tùy chọn)
+
+Social login chỉ được đăng ký khi cấu hình đủ `GOOGLE_CLIENT_ID` và `GOOGLE_CLIENT_SECRET` trong `.env.local`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

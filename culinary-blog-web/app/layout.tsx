@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { Header } from '@/components/Header';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -27,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${inter.className} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+        </Providers>
       </body>
     </html>
   );
