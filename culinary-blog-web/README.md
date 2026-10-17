@@ -31,6 +31,47 @@ Khi `USE_MOCK_API=true` / `NEXT_PUBLIC_USE_MOCK_API=true`, ứng dụng không c
 ## Đăng nhập Google (tùy chọn)
 
 Social login chỉ được đăng ký khi cấu hình đủ `GOOGLE_CLIENT_ID` và `GOOGLE_CLIENT_SECRET` trong `.env.local`.
+Nút "Đăng nhập với Google" chỉ hiện khi `NEXT_PUBLIC_GOOGLE_ENABLED=true` (biến `NEXT_PUBLIC_` được nhúng lúc build,
+không lộ client_id/secret cho phía client).
+
+### Lấy khóa trên Google Cloud Console
+
+1. Vào [Google Cloud Console](https://console.cloud.google.com/) → tạo/chọn một project.
+2. **APIs & Services → OAuth consent screen** → chọn *External*, điền tên ứng dụng, email hỗ trợ, save.
+3. **APIs & Services → Credentials → Create credentials → OAuth client ID**.
+4. Chọn **Application type = Web application**.
+5. Ở **Authorized redirect URI**, thêm đúng:
+   ```
+   http://localhost:3000/api/auth/callback/google
+   ```
+6. Save rồi copy **Client ID** và **Client secret**.
+7. Dán vào `.env.local`:
+   ```
+   GOOGLE_CLIENT_ID=<client id>
+   GOOGLE_CLIENT_SECRET=<client secret>
+   NEXT_PUBLIC_GOOGLE_ENABLED=true
+   ```
+
+### luồng đổi token
+
+Khi người dùng đăng nhập bằng Google, `lib/auth.ts` gọi `POST ${API_URL}/api/v1/auth/google` với `{ idToken }`
+để đổi Google `id_token` lấy JWT của backend, rồi gắn `accessToken`/`refreshToken` của backend vào token.
+
+- Chế độ mock (`USE_MOCK_API=true`): bỏ qua gọi backend, dùng token giả `mock-access-token-google`.
+- Nếu gọi backend lỗi: chỉ ghi log phía server và để token không có `accessToken` (đăng nhập không bị sập).
+
+## Phân tích dung lượng bundle
+
+Next.js 16 dùng Turbopack mặc định, nên dùng công cụ phân tích tích hợp sẵn (không cần thêm thư viện,
+không cần `cross-env`):
+
+```bash
+npm run analyze          # mở giao diện web tương tác tại http://localhost:4000
+npm run analyze:output   # chỉ ghi file kết quả vào .next/diagnostics/analyze, không mở server
+```
+
+Lưu ý: lệnh này biên dịch vào thư mục `.next` của dự án, nên hãy **dừng `npm run dev` đang chạy**
+trước khi chạy để tránh xung đột cache.
 
 ## Learn More
 

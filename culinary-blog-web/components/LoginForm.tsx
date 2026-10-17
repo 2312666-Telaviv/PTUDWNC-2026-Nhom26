@@ -3,8 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
-export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
+interface LoginFormProps {
+  callbackUrl: string;
+  googleEnabled: boolean;
+}
+
+export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -72,6 +78,20 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       >
         {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
       </button>
+
+      {googleEnabled && (
+        <div className="space-y-3">
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-2 text-gray-500">hoặc</span>
+            </div>
+          </div>
+          <GoogleSignInButton callbackUrl={callbackUrl} />
+        </div>
+      )}
 
       {process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' && (
         <p className="rounded-md bg-orange-50 p-3 text-sm text-gray-600">

@@ -30,6 +30,8 @@ export interface RecipeDto {
   primaryImageUrl: string;
   status: 'Draft' | 'Published' | 'Archived';
   viewCount: number;
+  likeCount: number;
+  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
   ingredients: RecipeIngredientDto[];

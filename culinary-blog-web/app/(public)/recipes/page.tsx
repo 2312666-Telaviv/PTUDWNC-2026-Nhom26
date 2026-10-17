@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { RecipeCard } from '@/components/recipe/RecipeCard';
+import { RecipeGrid } from '@/components/recipe/RecipeGrid';
+import { ViewModeToggle } from '@/components/recipe/ViewModeToggle';
 import { recipeApi } from '@/lib/api/server';
 
 export const revalidate = 3600;
@@ -17,13 +18,12 @@ export default async function RecipesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">Công thức nấu ăn</h1>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {result.items.map((recipe, index) => (
-          <RecipeCard key={recipe.id} recipe={recipe} priority={index < 3} />
-        ))}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold text-gray-900">Công thức nấu ăn</h1>
+        <ViewModeToggle />
       </div>
+
+      <RecipeGrid recipes={result.items} />
 
       {result.items.length === 0 && (
         <p className="py-8 text-center text-gray-500">Không tìm thấy công thức nào.</p>

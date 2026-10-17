@@ -1,6 +1,7 @@
 ﻿import { RecipeDto, RecipeListDto } from '@/types/api';
 
-export const mockRecipes: RecipeDto[] = [
+// Dữ liệu thô chưa có likeCount/isLiked, sẽ được bổ sung khi map sang RecipeDto
+const recipeSeeds: Omit<RecipeDto, 'likeCount' | 'isLiked'>[] = [
   {
     id: 1,
     title: 'Phở Bò',
@@ -376,6 +377,15 @@ export const mockRecipes: RecipeDto[] = [
     ],
   },
 ];
+
+// Số lượt thích mẫu khác nhau cho từng món (isLiked mặc định false)
+const seedLikeCounts = [128, 87, 42, 96, 65, 153, 74, 58, 110, 39, 91, 67];
+
+export const mockRecipes: RecipeDto[] = recipeSeeds.map((recipe, index) => ({
+  ...recipe,
+  likeCount: seedLikeCounts[index] ?? 0,
+  isLiked: false,
+}));
 
 export function getMockRecipes(): RecipeListDto[] {
   return mockRecipes.map((recipe) => ({

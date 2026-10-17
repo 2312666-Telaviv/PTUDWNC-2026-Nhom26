@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { RecipeDto } from '@/types/api';
+import { LikeButton } from '@/components/recipe/LikeButton';
 
 interface RecipeDetailProps {
   recipe: RecipeDto;
@@ -19,6 +20,9 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
       <header className="mb-8">
         <h1 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">{recipe.title}</h1>
         <p className="mb-4 text-lg text-gray-600">{recipe.description}</p>
+        <div className="mb-4">
+          <LikeButton recipe={recipe} />
+        </div>
         <div className="flex flex-wrap gap-4 text-sm text-gray-500">
           <span>Độ khó: {difficultyLabels[recipe.difficulty]}</span>
           <span>Chuẩn bị: {recipe.preparationTime} phút</span>

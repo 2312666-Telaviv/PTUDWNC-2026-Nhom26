@@ -5,6 +5,50 @@ import Google from 'next-auth/providers/google';
 
 const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
 
+// Đổi Google id_token lấy JWT của backend.
+// Auth.js chỉ cung cấp profile từ Google; hệ thống mình cần JWT backend để gọi API,
+// nên phải đổi id_token ở server (giữ bí mật client_id/secret và id_token).
+async function exchangeGoogleToken(idToken: string): Promise<{
+  accessToken?: string;
+  refreshToken?: string;
+  userId?: string;
+}> {
+  // Chế độ mock: bỏ qua gọi backend, cấp token giả để luồng đăng nhập chạy được
+  if (USE_MOCK_API) {
+    return {
+      accessToken: 'mock-access-token-google',
+      refreshToken: 'mock-refresh-token-google',
+    };
+  }
+
+  const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(`${API_URL}/api/v1/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!response.ok) {
+      // Không làm sập đăng nhập: chỉ log và trả về rỗng để token thiếu accessToken
+      console.error(`[auth] Đổi Google token thất bại với status ${response.status}`);
+      return {};
+    }
+
+    const data = await response.json();
+    return {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      userId: data.userId || data.id,
+    };
+  } catch (error) {
+    // Lỗi mạng/backend: vẫn cho đăng nhập, token sẽ không có accessToken backend
+    console.error('[auth] Lỗi khi gọi API đổi Google token:', error);
+    return {};
+  }
+}
+
 const credentialsConfig = Credentials({
   id: 'credentials',
   name: 'Credentials',
@@ -77,12 +121,28 @@ const authConfig: NextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      // Lần đăng nhập đầu (Auth.js chỉ truyền account ở lần đăng nhập mới)
       if (user) {
         token.userId = user.id as string;
         token.accessToken = user.accessToken as string;
         token.refreshToken = user.refreshToken as string;
       }
+
+      // Google: đổi id_token lấy JWT backend rồi gắn accessToken/refreshToken của backend
+      if (account?.provider === 'google' && account.id_token) {
+        const backend = await exchangeGoogleToken(account.id_token);
+        if (backend.accessToken) {
+          token.accessToken = backend.accessToken;
+        }
+        if (backend.refreshToken) {
+          token.refreshToken = backend.refreshToken;
+        }
+        if (backend.userId) {
+          token.userId = backend.userId;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
