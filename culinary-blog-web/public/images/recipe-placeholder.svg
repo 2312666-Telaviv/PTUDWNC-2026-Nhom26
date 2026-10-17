@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <rect width="800" height="450" fill="#fed7aa"/>
+  <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#ea580c" font-family="Arial, sans-serif" font-size="36" font-weight="bold">
+    Culinary Blog
+  </text>
+  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#fb923c" font-family="Arial, sans-serif" font-size="20">
+    Ảnh công thức
+  </text>
+</svg>
