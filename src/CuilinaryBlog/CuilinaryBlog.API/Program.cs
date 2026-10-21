@@ -12,6 +12,22 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSwaggerGen();
 
+// CORS: chỉ cho phép origin của front-end đọc từ appsettings (không dùng AllowAnyOrigin)
+const string CorsPolicyName = "FrontendCors";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // front-end dùng cookie/Auth.js nên cần gửi credentials
+    });
+});
+
 // Đăng ký ApplicationDbContext kết nối PostgreSQL
 builder.Services.AddDbContext<CulinaryBlog.Infrastructure.Persistence.ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -79,6 +95,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+
+// CORS phải chạy trước Authentication/Authorization để OPTIONS preflight được trả về
+app.UseCors(CorsPolicyName);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
