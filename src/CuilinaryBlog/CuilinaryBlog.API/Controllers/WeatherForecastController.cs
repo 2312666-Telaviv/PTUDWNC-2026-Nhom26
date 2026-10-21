@@ -1,9 +1,15 @@
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CuilinaryBlog.API.Controllers
 {
+    /// <summary>
+    /// Endpoint mẫu thời tiết (công khai).
+    /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries =
@@ -11,7 +17,12 @@ namespace CuilinaryBlog.API.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         ];
 
+        /// <summary>
+        /// Lấy dữ liệu thời tiết mẫu.
+        /// </summary>
         [HttpGet(Name = "GetWeatherForecast")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
