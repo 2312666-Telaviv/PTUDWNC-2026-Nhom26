@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace CuilinaryBlog.API.Controllers
 {
+    [ApiVersion("1.0")]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase

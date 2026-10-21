@@ -3,9 +3,11 @@ using CulinaryBlog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using Asp.Versioning;
 
 namespace CulinaryBlog.API.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/v1/recipes")]
     [ApiController]
     public class RecipesController : ControllerBase
