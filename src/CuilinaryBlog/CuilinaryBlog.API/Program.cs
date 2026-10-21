@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,48 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Cấu hình CORS cho phép front-end gọi API
+builder.Services.AddCors(options =>
+{
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+// Cấu hình Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    var permitLimit = builder.Configuration.GetValue<int>("RateLimiting:PermitLimit");
+    var windowSeconds = builder.Configuration.GetValue<int>("RateLimiting:WindowSeconds");
+    var authPermitLimit = builder.Configuration.GetValue<int>("RateLimiting:AuthPermitLimit");
+    var authWindowSeconds = builder.Configuration.GetValue<int>("RateLimiting:AuthWindowSeconds");
+
+    // Global limiter: 100 request / 60 giây per IP
+    options.AddFixedWindowLimiter("global", opt =>
+    {
+        opt.PermitLimit = permitLimit;
+        opt.Window = TimeSpan.FromSeconds(windowSeconds);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    // Auth limiter: strict hơn cho đăng nhập / đăng ký (5 request / 10 giây)
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.PermitLimit = authPermitLimit;
+        opt.Window = TimeSpan.FromSeconds(authWindowSeconds);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,9 +112,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("global");
 
 app.Run();
