@@ -25,7 +25,7 @@ export function useRecipes(filters: RecipeFilters = {}) {
       if (USE_MOCK) {
         return mockApi.getRecipes(filters.page ?? 1, filters.pageSize ?? 12);
       }
-      const response = await apiClient.get('/api/recipes', { params: filters });
+      const response = await apiClient.get('/recipes', { params: filters });
       return response.data as PaginatedResult<RecipeListDto>;
     },
     staleTime: 60 * 1000, // 1 phút
@@ -40,7 +40,7 @@ export function useRecipe(slug: string | undefined, initialData?: RecipeDto) {
       if (USE_MOCK) {
         return mockApi.getRecipeBySlug(slug as string);
       }
-      const response = await apiClient.get(`/api/recipes/${slug}`);
+      const response = await apiClient.get(`/recipes/${slug}`);
       return response.data as RecipeDto;
     },
     initialData,
@@ -78,7 +78,7 @@ export function useCreateRecipe(options: UseCreateRecipeOptions = {}) {
         };
       }
 
-      const response = await apiClient.post('/api/v1/recipes', data);
+      const response = await apiClient.post('/recipes', data);
       return response.data as CreateRecipeResult;
     },
     onSuccess: () => {
@@ -132,7 +132,7 @@ export function useLikeRecipe() {
         return { success: true };
       }
 
-      const response = await apiClient.post(`/api/v1/recipes/${recipeId}/like`);
+      const response = await apiClient.post(`/recipes/${recipeId}/like`);
       return response.data as LikeRecipeResult;
     },
 

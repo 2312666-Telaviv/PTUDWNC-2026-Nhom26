@@ -13,7 +13,10 @@ export default async function DashboardPage() {
       <h1 className="mb-4 text-2xl font-bold text-gray-900">
         Xin chào, {session.user.name}!
       </h1>
-      <p className="text-gray-600">Dashboard (sẽ hoàn thiện ở Bài 3)</p>
+      <p className="text-gray-600">
+        Vai trò: {session.user.roles?.length ? session.user.roles.join(', ') : 'Chưa có role'}
+      </p>
+      <p className="mt-2 text-gray-600">Dashboard (sẽ hoàn thiện ở Bài 3)</p>
     </div>
   );
 }

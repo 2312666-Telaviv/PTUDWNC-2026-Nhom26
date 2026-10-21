@@ -58,6 +58,11 @@ export function UserMenu() {
         </div>
       )}
       <span className="text-sm text-gray-700">Xin chào, {session.user?.name}</span>
+      {session.user?.roles?.includes('Admin') && (
+        <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
+          Admin
+        </span>
+      )}
       <button
         onClick={() => openModal('confirmLogout')}
         className="rounded-md border border-orange-300 px-4 py-2 text-sm font-medium text-orange-700 transition hover:bg-orange-50"

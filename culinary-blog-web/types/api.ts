@@ -73,6 +73,39 @@ export interface PaginatedResult<T> {
   totalPages: number;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponseDto {
+  accessToken: string;
+  expiration: string;
+  userId: string;
+  email: string;
+  name?: string | null;
+  roles: string[];
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export interface AssignRoleRequest {
+  email: string;
+  role: 'Admin' | 'User';
+}
+
+export interface ApiProblemDetails {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  instance?: string;
+  errors?: Record<string, string[]>;
+}
+
 export interface RecipeFilters {
   page?: number;
   pageSize?: number;

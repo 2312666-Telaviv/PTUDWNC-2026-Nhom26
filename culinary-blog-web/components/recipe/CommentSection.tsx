@@ -22,7 +22,7 @@ export function CommentSection({ recipeId }: { recipeId: number }) {
 
   const addCommentMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await apiClient.post('/api/comments', { recipeId, content });
+      const response = await apiClient.post('/comments', { recipeId, content });
       return response.data;
     },
     onSuccess: () => {

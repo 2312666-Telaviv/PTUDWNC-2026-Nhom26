@@ -12,12 +12,14 @@ async function exchangeGoogleToken(idToken: string): Promise<{
   accessToken?: string;
   refreshToken?: string;
   userId?: string;
+  roles?: string[];
 }> {
   // Chế độ mock: bỏ qua gọi backend, cấp token giả để luồng đăng nhập chạy được
   if (USE_MOCK_API) {
     return {
       accessToken: 'mock-access-token-google',
       refreshToken: 'mock-refresh-token-google',
+      roles: ['User'],
     };
   }
 
@@ -41,6 +43,7 @@ async function exchangeGoogleToken(idToken: string): Promise<{
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       userId: data.userId || data.id,
+      roles: Array.isArray(data.roles) ? data.roles : undefined,
     };
   } catch (error) {
     // Lỗi mạng/backend: vẫn cho đăng nhập, token sẽ không có accessToken backend
@@ -68,6 +71,7 @@ const credentialsConfig = Credentials({
           image: null,
           accessToken: 'mock-access-token',
           refreshToken: 'mock-refresh-token',
+          roles: ['User'],
         };
       }
       return null;
@@ -96,6 +100,7 @@ const credentialsConfig = Credentials({
         image: data.image,
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
+        roles: Array.isArray(data.roles) ? data.roles : [],
       };
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
@@ -127,6 +132,7 @@ const authConfig: NextAuthConfig = {
         token.userId = user.id as string;
         token.accessToken = user.accessToken as string;
         token.refreshToken = user.refreshToken as string;
+        token.roles = Array.isArray(user.roles) ? user.roles : [];
       }
 
       // Google: đổi id_token lấy JWT backend rồi gắn accessToken/refreshToken của backend
@@ -141,6 +147,9 @@ const authConfig: NextAuthConfig = {
         if (backend.userId) {
           token.userId = backend.userId;
         }
+        if (backend.roles) {
+          token.roles = backend.roles;
+        }
       }
 
       return token;
@@ -149,6 +158,7 @@ const authConfig: NextAuthConfig = {
       if (session.user) {
         session.user.id = token.userId as string;
         session.user.accessToken = token.accessToken as string;
+        session.user.roles = Array.isArray(token.roles) ? token.roles : [];
       }
       return session;
     },

@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
 import { getMockRecipeBySlug, getMockRecipes } from '@/lib/mock/recipes';
 
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+const API_URL = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041').replace(/\/$/, '');
+const API_BASE_URL = `${API_URL}/api/v1`;
 const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
 
 interface GetListParams {
@@ -16,7 +17,7 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
     throw new Error('API_URL không được cấu hình');
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -87,7 +88,7 @@ export const recipeApi = {
       }
 
       const data = await fetchFromApi<PaginatedResult<RecipeListDto>>(
-        `/api/recipes?${queryParams.toString()}`
+        `/recipes?${queryParams.toString()}`
       );
       return data;
     } catch (error) {
@@ -139,7 +140,7 @@ export const recipeApi = {
     }
 
     try {
-      const data = await fetchFromApi<RecipeDto>(`/api/recipes/${slug}`);
+      const data = await fetchFromApi<RecipeDto>(`/recipes/${slug}`);
       return data;
     } catch (error) {
       console.warn('Gọi API thất bại, chuyển sang dùng mock dữ liệu:', error);

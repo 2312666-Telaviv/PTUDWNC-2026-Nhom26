@@ -12,7 +12,7 @@ export function useInfiniteComments(recipeId: number) {
         const response = await fetch(`/api/mock/comments?recipeId=${recipeId}&page=${pageParam}&pageSize=10`);
         return response.json() as Promise<PaginatedResult<CommentDto> & { hasNextPage?: boolean }>;
       }
-      const response = await apiClient.get('/api/comments', {
+      const response = await apiClient.get('/comments', {
         params: { recipeId, pageNumber: pageParam, pageSize: 10 },
       });
       return response.data as PaginatedResult<CommentDto> & { hasNextPage?: boolean };
