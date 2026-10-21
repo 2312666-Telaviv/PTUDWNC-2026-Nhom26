@@ -66,35 +66,74 @@ Mã nguồn nằm trong thư mục `culinary-blog-web`.
 - Tích hợp Social Login với Google vào Auth.js.
 - Performance audit bằng Next.js Bundle Analyzer.
 
-## Phân công Lab 5
+# Phân công Lab 5
 
-**Nội dung Lab 5:** bảo mật (CORS, Rate Limiting, Authentication/Authorization), sinh tài liệu đặc tả API và API versioning, xây dựng cấu trúc dự án front-end, cài đặt thư viện, TS types.
+**Nội dung Lab 5:**  
+Bảo mật (CORS, Rate Limiting, Authentication/Authorization), sinh tài liệu đặc tả API & API versioning, xây dựng cấu trúc dự án front-end, cài đặt thư viện và TypeScript types.
 
 | Phần | Nội dung | Thành viên | MSSV | Nhánh |
-|---|---|---|---|---|
-| 1 | Bảo mật back-end: CORS, Rate Limiting, JWT, phân quyền theo role và chủ sở hữu | Kieu Hoang Linh | 2312666 | `2312666-KieuHoangLinh` |
+|------|----------|------------|------|-------|
+| 1 | Bảo mật back-end: CORS, Rate Limiting, JWT, phân quyền theo role và chủ sở hữu | Kieu Ha Linh | 2312665 | `2312665-KieuHaLinh` |
 | 2 | Tài liệu API: Swagger/OpenAPI, API versioning `/api/v1`, xử lý cảnh báo AV0029/AV0030 | Kieu Ha Linh | 2312665 | `2312665-KieuHaLinh` |
-| 3 | Front-end Next.js: môi trường, cấu trúc dự án, thư viện, TS types, lớp gọi API | Nguyen Tran Quynh Huong | 2312631 | `2312631-NguyenTranQuynhHuong` |
+| 3 | Front-end Next.js: cài đặt môi trường, xây dựng cấu trúc dự án | Kieu Hoang Linh | 2312666 | `2312666-KieuHoangLinh` |
+| 4 | Cài đặt các thư viện cần thiết cho front-end | Nguyen Tran Quynh Huong | 2312631 | `2312631-NguyenTranQuynhHuong` |
+| 5 | Cài đặt các kiểu dữ liệu (TS types) cần thiết cho ứng dụng front-end | Nguyen Tran Quynh Huong | 2312631 | `2312631-NguyenTranQuynhHuong` |
 
-### Phần 1 - Bảo mật back-end
+---
+
+### Chi tiết công việc
+
+**Phần 1 & 2 – Kieu Ha Linh (MSSV: 2312665)**
 - Cấu hình CORS theo origin của front-end (đọc từ `appsettings`).
 - Rate Limiting: policy mặc định và policy chặt hơn cho đăng nhập/đăng ký, trả 429 kèm `Retry-After`.
 - Authentication (JWT) và Authorization (role Admin/User, owner-or-admin cho công thức).
 - Chuyển mật khẩu tài khoản admin seed ra khỏi code (cấu hình hoặc user-secrets).
-- Sản phẩm: bảng kiểm thử 401/403/429, CORS và ảnh minh chứng.
-
-### Phần 2 - Tài liệu API và versioning
 - Cấu hình Swagger/OpenAPI có nút Authorize (Bearer), mô tả endpoint và response code.
-- API versioning theo URL (`/api/v1`), header `api-supported-versions`.
-- Xử lý 3 cảnh báo AV0029/AV0030 (dùng song song Swashbuckle và OpenAPI built-in).
-- Sản phẩm: ảnh Swagger, mô tả cách thêm version v2.
+- API versioning `/api/v1`, xử lý cảnh báo AV0029/AV0030.
+- Sản phẩm: bảng kiểm thử 401/403/429, CORS và ảnh minh chứng + tài liệu Swagger.
 
-### Phần 3 - Front-end
-- Môi trường, `.env.example`, scripts, cấu trúc thư mục `culinary-blog-web`.
-- Thư viện cần thiết và TS types khớp DTO của API (không dùng `any`).
-- Lớp gọi API dùng `/api/v1`, gắn Bearer, xử lý lỗi 401/403/429.
-- Sản phẩm: `typecheck`, `lint`, `build` đạt, ảnh chạy thực tế.
+**Phần 3 – Kieu Hoang Linh (MSSV: 2312666)**
+- Cài đặt môi trường phát triển front-end (Node.js, Next.js…).
+- Xây dựng cấu trúc thư mục dự án phía front-end.
+- Sản phẩm: cấu trúc project rõ ràng, có thể chạy được môi trường cơ bản.
 
+**Phần 4 & 5 – Nguyen Tran Quynh Huong (MSSV: 2312631)**
+- Cài đặt các thư viện cần thiết cho ứng dụng front-end.
+- Định nghĩa và cài đặt các TypeScript types cần dùng trong ứng dụng.
+- Sản phẩm: `package.json` đầy đủ thư viện + file types tương ứng.
+
+## Phân công Lab 6
+
+**Nội dung Lab 6:** Cài đặt lớp tiện ích (xử lý lỗi, gọi API…), cài đặt thư viện UI (shadcn/ui hoặc tương đương), cài đặt store quản lý trạng thái, thiết kế giao diện tĩnh cho blog app, xây dựng các component dùng chung và layout chung.
+
+| Phần | Nội dung | Thành viên | MSSV | Nhánh |
+|------|----------|------------|------|-------|
+| 1 & 2 | Lớp tiện ích (error handling, API client…) + Cài đặt shadcn/ui (hoặc thư viện UI khác) | Kieu Ha Linh | 2312665 | 2312665-KieuHaLinh |
+| 3 & 4 | Cài đặt store quản lý trạng thái (auth-store.ts…) + Thiết kế giao diện tĩnh cho blog app | Kieu Hoang Linh | 2312666 | 2312666-KieuHoangLinh |
+| 5 & 6 | Xây dựng các component dùng chung (Header, Footer, Pagination, Loading, Error…) + Xây dựng layout chung cho blog app | Nguyen Tran Quynh Huong | 2312631 | 2312631-NguyenTranQuynhHuong |
+
+### Phần 1 & 2 – Kieu Ha Linh (MSSV: 2312665)
+
+- Cài đặt các lớp tiện ích xử lý lỗi, gọi API, format dữ liệu…
+- Cài đặt gói thư viện **shadcn/ui** (hoặc thư viện hỗ trợ thiết kế giao diện khác).
+- Sản phẩm: code tiện ích + cấu hình shadcn/ui hoàn chỉnh, có thể import và sử dụng component UI.
+
+### Phần 3 & 4 – Kieu Hoang Linh (MSSV: 2312666)
+
+- Cài đặt store quản lý trạng thái (ví dụ: `auth-store.ts` với Zustand hoặc tương đương).
+- Thiết kế giao diện **tĩnh** cho blog app (các trang/màn hình chính theo mockup).
+- Sản phẩm: store hoạt động, giao diện tĩnh hiển thị đúng layout và style.
+
+### Phần 5 & 6 – Nguyen Tran Quynh Huong (MSSV: 2312631)
+
+- Xây dựng các component dùng chung: Header, Footer, Pagination, Loading, Error…
+- Xây dựng bố cục (layout) chung cho toàn bộ blog app.
+- Sản phẩm: component tái sử dụng được + layout chung áp dụng cho các trang.
+
+## Quy ước làm việc
+
+- Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.
+- Báo cáo cá nhân nộp LMS theo tên file `Lab6_MSSV_HoVaTen.docx`.
 ## Quy ước làm việc
 
 - Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.
