@@ -130,10 +130,42 @@ Bảo mật (CORS, Rate Limiting, Authentication/Authorization), sinh tài liệ
 - Xây dựng bố cục (layout) chung cho toàn bộ blog app.
 - Sản phẩm: component tái sử dụng được + layout chung áp dụng cho các trang.
 
-## Quy ước làm việc
+## Phân công Lab 7
 
-- Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.
-- Báo cáo cá nhân nộp LMS theo tên file `Lab6_MSSV_HoVaTen.docx`.
+**Nội dung Lab 7:**  
+Hoàn thành các tính năng đăng ký, đăng nhập, đăng xuất, đổi mật khẩu, quên mật khẩu; xây dựng trang hồ sơ (profile) và cập nhật hồ sơ; xây dựng trang chủ (header, footer, sidebar danh sách category, main content danh sách công thức mới); trang xem chi tiết công thức; chức năng tìm kiếm; trang xem danh sách tất cả category.
+
+| Phần | Nội dung | Thành viên | MSSV | Nhánh |
+|------|----------|------------|------|-------|
+| 1 & 2 | Auth (đăng ký, đăng nhập, đăng xuất, đổi mật khẩu, quên mật khẩu) + Trang Profile & cập nhật hồ sơ | Kiều Hà Linh | 2312665 | 2312665-KieuHaLinh |
+| 3 & 4 | Trang chủ (Header, Footer, Sidebar category, danh sách công thức mới) + Trang chi tiết công thức | Kiều Hoàng Linh | 2312666 | 2312666-KieuHoangLinh |
+| 5 & 6 | Chức năng tìm kiếm + Trang danh sách tất cả category | Nguyễn Trần Quỳnh Hương | 2312631 | 2312631-NguyenTranQuynhHuong |
+
+### Phần 1 & 2 – Kiều Hà Linh (MSSV: 2312665)
+- Cài đặt đầy đủ các tính năng Auth:
+  - Đăng ký tài khoản
+  - Đăng nhập
+  - Đăng xuất
+  - Đổi mật khẩu
+  - Quên mật khẩu (gửi email / reset password)
+- Xây dựng trang hồ sơ (Profile)
+- Cho phép người dùng cập nhật thông tin hồ sơ (avatar, tên, bio, …)
+- **Sản phẩm**: Code Auth + Profile hoàn chỉnh, có thể import và sử dụng chung cho cả nhóm.
+
+### Phần 3 & 4 – Kiều Hoàng Linh (MSSV: 2312666)
+- Xây dựng trang chủ hoàn chỉnh:
+  - Header
+  - Footer
+  - Sidebar hiển thị danh sách Category
+  - Main content hiển thị danh sách công thức mới (hoặc công thức nổi bật)
+- Xây dựng trang xem chi tiết công thức (món ăn):
+  - Hiển thị đầy đủ thông tin món ăn (tên, ảnh, nguyên liệu, cách làm, …)
+- **Sản phẩm**: Layout trang chủ + trang Detail Recipe hoàn chỉnh.
+
+### Phần 5 & 6 – Nguyễn Trần Quỳnh Hương (MSSV: 2312631)
+- Cài đặt chức năng tìm kiếm (search theo tên công thức / nguyên liệu / category…)
+- Xây dựng trang xem danh sách tất cả Category
+- **Sản phẩm**: Chức năng Search + trang Categories list hoàn chỉnh, có thể kết nối với trang chủ và trang chi tiết.
 ## Quy ước làm việc
 
 - Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.
