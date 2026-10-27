@@ -1,6 +1,16 @@
 import { axiosInstance } from './axios';
 import { extractAxiosErrorMessage, ApiError } from './error';
 import type { RecipeDto, RecipeListDto, PaginatedResult } from '@/types/api';
+import type {
+  AuthTokens,
+  LoginRequest,
+  RegisterRequest,
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  UpdateProfileRequest,
+  ProfileDto,
+} from '@/types/api';
 
 /**
  * Service layer cho các thao tác với API công thức nấu ăn (Recipes).
@@ -52,12 +62,12 @@ export const authService = {
   /**
    * Đăng nhập, trả về JWT token.
    */
-  async login(email: string, password: string) {
+  async login(data: LoginRequest): Promise<AuthTokens> {
     try {
-      const response = await axiosInstance.post<{
-        token: string;
-        expiration: string;
-      }>('/api/v1/auth/login', { email, password });
+      const response = await axiosInstance.post<AuthTokens>(
+        '/api/v1/auth/login',
+        data
+      );
       return response.data;
     } catch (error) {
       throw new ApiError(extractAxiosErrorMessage(error), 401);
@@ -67,11 +77,97 @@ export const authService = {
   /**
    * Đăng ký tài khoản mới.
    */
-  async register(email: string, password: string) {
+  async register(data: RegisterRequest): Promise<{ message: string }> {
     try {
       const response = await axiosInstance.post<{ message: string }>(
         '/api/v1/auth/register',
-        { email, password }
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 400);
+    }
+  },
+
+  /**
+   * Đổi mật khẩu (yêu cầu đăng nhập).
+   */
+  async changePassword(data: ChangePasswordRequest): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.post<{ message: string }>(
+        '/api/v1/auth/change-password',
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 400);
+    }
+  },
+
+  /**
+   * Quên mật khẩu - gửi liên kết đặt lại mật khẩu.
+   */
+  async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.post<{ message: string }>(
+        '/api/v1/auth/forgot-password',
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 400);
+    }
+  },
+
+  /**
+   * Đặt lại mật khẩu bằng token.
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.post<{ message: string }>(
+        '/api/v1/auth/reset-password',
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 400);
+    }
+  },
+
+  /**
+   * Lấy hồ sơ người dùng hiện tại (yêu cầu đăng nhập).
+   */
+  async getProfile(): Promise<ProfileDto> {
+    try {
+      const response = await axiosInstance.get<ProfileDto>('/api/v1/auth/profile');
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 401);
+    }
+  },
+
+  /**
+   * Cập nhật hồ sơ người dùng (yêu cầu đăng nhập).
+   */
+  async updateProfile(data: UpdateProfileRequest): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.put<{ message: string }>(
+        '/api/v1/auth/profile',
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new ApiError(extractAxiosErrorMessage(error), 400);
+    }
+  },
+
+  /**
+   * Đăng xuất (gọi API server-side logout).
+   */
+  async logout(): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.post<{ message: string }>(
+        '/api/v1/auth/logout'
       );
       return response.data;
     } catch (error) {

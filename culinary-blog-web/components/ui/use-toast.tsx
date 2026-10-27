@@ -32,7 +32,7 @@ type ToastAction = {
 };
 
 type Toast = {
-  id: string;
+  id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastAction;

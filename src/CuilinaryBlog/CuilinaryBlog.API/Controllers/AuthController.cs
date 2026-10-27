@@ -77,8 +77,98 @@ public class AuthController : ControllerBase
         return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu!" });
     }
 
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Đổi mật khẩu thành công!" });
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+        {
+            // Không tiết lộ xem email có tồn tại hay không (bảo mật)
+            return Ok(new { message = "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi." });
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        // Ở đây thường gửi email chứa token reset mật khẩu.
+        // Trong ví dụ này, chúng tôi trả về token (trong thực tế KHÔNG nên làm vậy với production).
+        return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn.", resetToken = token });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Đặt lại mật khẩu thành công!" });
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<IActionResult> GetProfile()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var profile = new ProfileDto
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            UserName = user.UserName!,
+        };
+
+        return Ok(profile);
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        user.Email = model.Email;
+        user.UserName = model.Email;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Cập nhật hồ sơ thành công!" });
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        // Với JWT stateless, logout chủ yếu được xử lý ở client (xóa token).
+        // Endpoint này có thể dùng để invalidate token trên server nếu có blacklist.
+        return Ok(new { message = "Đăng xuất thành công!" });
+    }
+
     [HttpPost("assign-role")]
-    [Authorize(Roles = "Admin")] // Chỉ Admin mới được quyền gán role
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
@@ -103,5 +193,12 @@ public class AuthController : ControllerBase
     {
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }
