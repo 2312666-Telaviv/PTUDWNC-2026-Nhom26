@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { RecipeListDto } from '@/types/api';
+import { formatDate } from '@/lib/utils/format';
 
 interface RecipeCardProps {
   recipe: RecipeListDto;
@@ -48,7 +49,13 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
             <span>Tổng: {recipe.totalTime} phút</span>
             <span>Khẩu phần: {recipe.servings} người</span>
-            <span className="text-xs text-gray-400">{recipe.categoryName}</span>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-gray-400">
+            <span className="font-medium text-orange-600">{recipe.categoryName}</span>
+            {recipe.authorName && <span>Tác giả: {recipe.authorName}</span>}
+            {recipe.createdAt && (
+              <time dateTime={recipe.createdAt}>{formatDate(recipe.createdAt)}</time>
+            )}
           </div>
         </div>
       </Link>
@@ -88,6 +95,14 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
           <span>{recipe.categoryName}</span>
           <span>{recipe.viewCount} lượt xem</span>
         </div>
+        {(recipe.authorName || recipe.createdAt) && (
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 text-xs text-gray-400">
+            {recipe.authorName && <span className="truncate">Tác giả: {recipe.authorName}</span>}
+            {recipe.createdAt && (
+              <time dateTime={recipe.createdAt}>{formatDate(recipe.createdAt)}</time>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   );

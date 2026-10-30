@@ -397,6 +397,7 @@ export function getMockRecipes(): RecipeListDto[] {
     servings: recipe.servings,
     difficulty: recipe.difficulty,
     categoryName: recipe.categoryName,
+    authorName: recipe.authorName,
     primaryImageUrl: recipe.primaryImageUrl,
     viewCount: recipe.viewCount,
     createdAt: recipe.createdAt,

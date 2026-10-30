@@ -1,6 +1,9 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { RecipeDto } from '@/types/api';
 import { LikeButton } from '@/components/recipe/LikeButton';
+import { formatDate } from '@/lib/utils/format';
+import { slugify } from '@/lib/utils/slugify';
 
 interface RecipeDetailProps {
   recipe: RecipeDto;
@@ -14,12 +17,42 @@ const difficultyLabels: Record<RecipeDto['difficulty'], string> = {
 
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
   const blurDataUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"%3E%3Crect fill="%23fed7aa" width="100%" height="100%"/%3E%3C/svg%3E';
+  const categorySlug = slugify(recipe.categoryName);
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-8">
+      <nav className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+        <Link
+          href="/recipes"
+          className="inline-flex items-center gap-1 font-medium text-orange-600 transition hover:text-orange-700"
+        >
+          <span aria-hidden="true">←</span> Quay lại danh sách công thức
+        </Link>
+        <Link
+          href={`/categories/${categorySlug}`}
+          className="rounded-full bg-orange-50 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-100"
+        >
+          {recipe.categoryName}
+        </Link>
+      </nav>
+
       <header className="mb-8">
         <h1 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">{recipe.title}</h1>
         <p className="mb-4 text-lg text-gray-600">{recipe.description}</p>
+
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
+          <span>
+            Tác giả: <span className="font-medium text-gray-700">{recipe.authorName}</span>
+          </span>
+          <span>
+            Đăng ngày{' '}
+            <time dateTime={recipe.createdAt} className="font-medium text-gray-700">
+              {formatDate(recipe.createdAt)}
+            </time>
+          </span>
+          <span>{recipe.viewCount} lượt xem</span>
+        </div>
+
         <div className="mb-4">
           <LikeButton recipe={recipe} />
         </div>
@@ -29,8 +62,19 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           <span>Nấu: {recipe.cookingTime} phút</span>
           <span>Tổng: {recipe.totalTime} phút</span>
           <span>Khẩu phần: {recipe.servings} người</span>
-          <span>Danh mục: {recipe.categoryName}</span>
         </div>
+        {recipe.tags && recipe.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {recipe.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-lg">
@@ -76,6 +120,18 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           ))}
         </ol>
       </section>
+
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-orange-100 pt-6">
+        <Link href="/" className="text-sm font-medium text-orange-600 transition hover:text-orange-700">
+          ← Về trang chủ
+        </Link>
+        <Link
+          href={`/categories/${categorySlug}`}
+          className="btn btn-outline text-sm"
+        >
+          Xem thêm món {recipe.categoryName}
+        </Link>
+      </footer>
     </article>
   );
 }

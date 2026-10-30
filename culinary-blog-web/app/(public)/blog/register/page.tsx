@@ -29,13 +29,7 @@ export default function BlogRegisterPage() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Đã có tài khoản?{' '}
-          <Link href="/blog/login" className="font-medium text-orange-600 hover:underline">
-            Đăng nhập
-          </Link>
-        </p>
-        <p className="mt-2 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-gray-500">
           Quay lại{' '}
           <Link href="/blog" className="font-medium text-orange-600 hover:underline">
             trang chủ

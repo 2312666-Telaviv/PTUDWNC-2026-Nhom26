@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
+import { CategoryDto } from '@/types/category';
+import { getMockCategories } from '@/lib/mock/categories';
 import { getMockRecipeBySlug, getMockRecipes } from '@/lib/mock/recipes';
 
 const API_URL = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041').replace(/\/$/, '');
@@ -130,6 +132,23 @@ export const recipeApi = {
     }
   },
 
+  async getLatest(limit = 6): Promise<RecipeListDto[]> {
+    if (USE_MOCK_API) {
+      return [...getMockRecipes()]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, limit);
+    }
+
+    const result = await recipeApi.getList({ page: 1, pageSize: limit });
+    if (!Array.isArray(result.items)) {
+      throw new Error('Phản hồi API công thức không đúng định dạng danh sách có phân trang');
+    }
+
+    return [...result.items]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, limit);
+  },
+
   async getBySlug(slug: string): Promise<RecipeDto> {
     if (USE_MOCK_API) {
       const recipe = getMockRecipeBySlug(slug);
@@ -150,5 +169,15 @@ export const recipeApi = {
       }
       return recipe;
     }
+  },
+};
+
+export const categoryApi = {
+  async getList(): Promise<CategoryDto[]> {
+    // Backend .NET hiện chưa có entity/controller Category nên chưa có endpoint
+    // danh sách danh mục. Trong lúc chờ backend, dùng dữ liệu mock của dự án.
+    // Khi backend bổ sung GET /api/v1/categories, thay phần thân hàm này bằng
+    // fetchFromApi<CategoryDto[]>('/categories').
+    return getMockCategories();
   },
 };

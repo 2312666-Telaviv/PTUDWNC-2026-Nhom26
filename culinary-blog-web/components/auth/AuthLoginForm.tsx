@@ -125,6 +125,13 @@ export function AuthLoginForm() {
         {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
       </button>
 
+      <p className="text-center text-sm text-gray-600">
+        Chưa có tài khoản?{' '}
+        <Link href="/register" className="font-medium text-orange-600 hover:underline">
+          Đăng ký ngay
+        </Link>
+      </p>
+
       <p className="text-center text-xs text-gray-400">
         Đây là giao diện tĩnh, dữ liệu đăng nhập chỉ được lưu trong localStorage của trình duyệt.
       </p>

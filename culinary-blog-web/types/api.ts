@@ -48,6 +48,7 @@ export interface RecipeListDto {
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   categoryName: string;
+  authorName?: string;
   primaryImageUrl: string;
   viewCount: number;
   createdAt: string;
@@ -90,6 +91,7 @@ export interface LoginResponseDto {
 export interface RegisterRequest {
   email: string;
   password: string;
+  name?: string;
 }
 
 export interface AssignRoleRequest {

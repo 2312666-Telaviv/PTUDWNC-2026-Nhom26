@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -31,6 +32,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>
