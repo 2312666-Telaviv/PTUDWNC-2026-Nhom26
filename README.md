@@ -166,6 +166,31 @@ Hoàn thành các tính năng đăng ký, đăng nhập, đăng xuất, đổi m
 - Cài đặt chức năng tìm kiếm (search theo tên công thức / nguyên liệu / category…)
 - Xây dựng trang xem danh sách tất cả Category
 - **Sản phẩm**: Chức năng Search + trang Categories list hoàn chỉnh, có thể kết nối với trang chủ và trang chi tiết.
+
+## Phân công Lab 8
+
+**Nội dung Lab 8:**
+Hoàn thành tính năng upload ảnh; xây dựng trang thêm mới/cập nhật công thức và thay đổi trạng thái công thức (Draft -> Publish -> Archived/Deleted); xây dựng trang xem danh sách người dùng (admin, tác giả); bổ sung tính năng logging để ghi lại nhật ký hệ thống; hoàn thiện các tính năng khác theo đặc tả trong file SRS.
+
+| Phần | Nội dung | Thành viên | MSSV | Nhánh |
+|------|----------|------------|------|-------|
+| 1 & 2 | Tính năng upload ảnh + Bổ sung logging ghi nhật ký hệ thống | Kiều Hà Linh | 2312665 | 2312665-KieuHaLinh |
+| 3 | Trang thêm mới/cập nhật công thức + Thay đổi trạng thái công thức (Draft -> Publish -> Archived/Deleted) | Kiều Hoàng Linh | 2312666 | 2312666-KieuHoangLinh |
+| 4 & 5 | Trang xem danh sách người dùng (admin, tác giả) + Hoàn thiện các tính năng còn lại theo SRS | Nguyễn Trần Quỳnh Hương | 2312631 | 2312631-NguyenTranQuynhHuong |
+
+### Phần 1 & 2 – Kiều Hà Linh (MSSV: 2312665)
+- Cài đặt tính năng upload ảnh (ảnh đại diện, ảnh công thức)
+- Bổ sung tính năng logging để ghi lại nhật ký hệ thống
+
+### Phần 3 – Kiều Hoàng Linh (MSSV: 2312666)
+- Xây dựng trang thêm mới công thức
+- Xây dựng trang cập nhật công thức
+- Thay đổi trạng thái công thức: Draft -> Publish -> Archived/Deleted
+
+### Phần 4 & 5 – Nguyễn Trần Quỳnh Hương (MSSV: 2312631)
+- Xây dựng trang xem danh sách người dùng (admin, tác giả)
+- Hoàn thiện các tính năng khác theo đặc tả trong file SRS
+
 ## Quy ước làm việc
 
 - Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.
