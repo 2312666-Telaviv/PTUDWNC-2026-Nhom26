@@ -1,9 +1,18 @@
 import { z } from 'zod';
 
-// Schema validate form tạo công thức mới.
-// Lưu ý: project đang dùng Zod v3 (3.25.76) nên dùng cú pháp v3
-// (required_error / invalid_type_error) cho thông báo lỗi tiếng Việt.
-export const createRecipeSchema = z.object({
+// Schema dùng chung cho form tạo mới và cập nhật công thức.
+// Project đang dùng Zod v3 nên giữ cú pháp required_error / invalid_type_error.
+const imageUrlSchema = z
+  .string()
+  .trim()
+  .max(500, 'Đường dẫn ảnh không được vượt quá 500 ký tự')
+  .refine(
+    (value) => value === '' || value.startsWith('/') || /^https?:\/\//i.test(value),
+    'Đường dẫn ảnh phải là URL http(s) hoặc đường dẫn bắt đầu bằng /'
+  )
+  .optional();
+
+export const recipeSchema = z.object({
   title: z
     .string({
       required_error: 'Vui lòng nhập tên công thức',
@@ -14,11 +23,11 @@ export const createRecipeSchema = z.object({
 
   description: z
     .string({
+      required_error: 'Vui lòng nhập mô tả',
       invalid_type_error: 'Mô tả không hợp lệ',
     })
     .min(20, 'Mô tả phải có ít nhất 20 ký tự')
-    .max(500, 'Mô tả không được vượt quá 500 ký tự')
-    .optional(),
+    .max(2000, 'Mô tả không được vượt quá 2000 ký tự'),
 
   categoryId: z
     .string({
@@ -33,7 +42,7 @@ export const createRecipeSchema = z.object({
       invalid_type_error: 'Thời gian chuẩn bị phải là số',
     })
     .int('Thời gian chuẩn bị phải là số nguyên')
-    .min(1, 'Thời gian chuẩn bị tối thiểu 1 phút')
+    .min(0, 'Thời gian chuẩn bị không được âm')
     .max(1440, 'Thời gian chuẩn bị tối đa 1440 phút'),
 
   cookTimeMinutes: z
@@ -42,7 +51,7 @@ export const createRecipeSchema = z.object({
       invalid_type_error: 'Thời gian nấu phải là số',
     })
     .int('Thời gian nấu phải là số nguyên')
-    .min(1, 'Thời gian nấu tối thiểu 1 phút')
+    .min(0, 'Thời gian nấu không được âm')
     .max(1440, 'Thời gian nấu tối đa 1440 phút'),
 
   servings: z
@@ -52,27 +61,42 @@ export const createRecipeSchema = z.object({
     })
     .int('Số khẩu phần phải là số nguyên')
     .min(1, 'Số khẩu phần tối thiểu là 1')
-    .max(50, 'Số khẩu phần tối đa là 50'),
+    .max(100, 'Số khẩu phần tối đa là 100'),
 
   difficulty: z.enum(['Easy', 'Medium', 'Hard'], {
     errorMap: () => ({ message: 'Độ khó không hợp lệ' }),
   }),
 
+  primaryImageUrl: imageUrlSchema,
+
+  tags: z
+    .string()
+    .trim()
+    .max(300, 'Danh sách tag không được vượt quá 300 ký tự')
+    .optional(),
+
   steps: z
     .array(
       z.object({
+        title: z
+          .string()
+          .trim()
+          .max(150, 'Tiêu đề bước không được vượt quá 150 ký tự')
+          .optional(),
         description: z
           .string({
             required_error: 'Vui lòng nhập mô tả bước',
             invalid_type_error: 'Mô tả bước không hợp lệ',
           })
-          .min(10, 'Mô tả bước phải có ít nhất 10 ký tự'),
+          .min(10, 'Mô tả bước phải có ít nhất 10 ký tự')
+          .max(2000, 'Mô tả bước không được vượt quá 2000 ký tự'),
         durationMinutes: z
           .number({
             invalid_type_error: 'Thời gian của bước phải là số',
           })
           .int('Thời gian của bước phải là số nguyên')
-          .positive('Thời gian của bước phải là số dương')
+          .min(0, 'Thời gian của bước không được âm')
+          .max(1440, 'Thời gian của bước tối đa 1440 phút')
           .optional(),
       })
     )
@@ -86,27 +110,43 @@ export const createRecipeSchema = z.object({
             required_error: 'Vui lòng nhập tên nguyên liệu',
             invalid_type_error: 'Tên nguyên liệu không hợp lệ',
           })
-          .min(2, 'Tên nguyên liệu phải có ít nhất 2 ký tự'),
+          .min(2, 'Tên nguyên liệu phải có ít nhất 2 ký tự')
+          .max(200, 'Tên nguyên liệu không được vượt quá 200 ký tự'),
         quantity: z
-          .number({
+          .string({
             required_error: 'Vui lòng nhập số lượng',
-            invalid_type_error: 'Số lượng phải là số',
+            invalid_type_error: 'Số lượng phải là chuỗi',
           })
-          .positive('Số lượng phải là số dương'),
+          .min(1, 'Số lượng phải có ít nhất 1 ký tự')
+          .max(50, 'Số lượng không được vượt quá 50 ký tự'),
         unit: z
           .string({
             required_error: 'Vui lòng nhập đơn vị',
             invalid_type_error: 'Đơn vị không hợp lệ',
           })
-          .min(1, 'Đơn vị phải có ít nhất 1 ký tự'),
-        notes: z
-          .string({
-            invalid_type_error: 'Ghi chú không hợp lệ',
-          })
-          .optional(),
+          .min(1, 'Đơn vị phải có ít nhất 1 ký tự')
+          .max(50, 'Đơn vị không được vượt quá 50 ký tự'),
       })
     )
     .min(1, 'Cần có ít nhất 1 nguyên liệu'),
 });
 
-export type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
+// Chỉ cho phép tạo công thức ở trạng thái nháp hoặc xuất bản ngay.
+export const recipeCreateStatusSchema = z.enum(['Draft', 'Published'], {
+  errorMap: () => ({ message: 'Trạng thái khi tạo chỉ có thể là Draft hoặc Published' }),
+});
+
+export const recipeRequestSchema = recipeSchema.extend({
+  status: recipeCreateStatusSchema.optional(),
+});
+
+export const recipeStatusSchema = z.enum(['Draft', 'Published', 'Archived', 'Deleted'], {
+  errorMap: () => ({ message: 'Trạng thái công thức không hợp lệ' }),
+});
+
+export type RecipeFormData = z.infer<typeof recipeSchema>;
+export type RecipeRequestData = z.infer<typeof recipeRequestSchema>;
+
+// Giữ tên cũ để không phá vỡ import hiện có.
+export const createRecipeSchema = recipeSchema;
+export type CreateRecipeFormData = RecipeFormData;

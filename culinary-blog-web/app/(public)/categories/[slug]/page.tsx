@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getMockCategories } from '@/lib/mock/categories';
-import { getMockRecipes } from '@/lib/mock/recipes';
+import { recipeApi } from '@/lib/api/server';
 import { RecipeCard } from '@/components/recipe/RecipeCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { slugify } from '@/lib/utils/slugify';
@@ -25,7 +25,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const recipes = getMockRecipes().filter(
+  const result = await recipeApi.getList({ page: 1, pageSize: 1000 });
+  const recipes = result.items.filter(
     (recipe) => recipe.categoryName === category.name || slugify(recipe.categoryName) === category.slug
   );
 

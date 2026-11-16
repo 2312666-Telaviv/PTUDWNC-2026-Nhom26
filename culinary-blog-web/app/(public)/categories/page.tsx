@@ -1,13 +1,14 @@
 import { getMockCategories } from '@/lib/mock/categories';
-import { getMockRecipes } from '@/lib/mock/recipes';
+import { recipeApi } from '@/lib/api/server';
 import Link from 'next/link';
 import { CategoryDto } from '@/types/category';
 
 export const revalidate = 3600;
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
   const categories: CategoryDto[] = getMockCategories();
-  const allRecipes = getMockRecipes();
+  const result = await recipeApi.getList({ page: 1, pageSize: 1000 });
+  const allRecipes = result.items;
 
   const categoriesWithCount = categories.map((category) => ({
     ...category,

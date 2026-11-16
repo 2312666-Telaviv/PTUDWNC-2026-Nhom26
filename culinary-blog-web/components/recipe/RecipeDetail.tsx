@@ -7,6 +7,7 @@ import { slugify } from '@/lib/utils/slugify';
 
 interface RecipeDetailProps {
   recipe: RecipeDto;
+  canEdit?: boolean;
 }
 
 const difficultyLabels: Record<RecipeDto['difficulty'], string> = {
@@ -15,7 +16,7 @@ const difficultyLabels: Record<RecipeDto['difficulty'], string> = {
   Hard: 'Khó',
 };
 
-export function RecipeDetail({ recipe }: RecipeDetailProps) {
+export function RecipeDetail({ recipe, canEdit = false }: RecipeDetailProps) {
   const blurDataUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"%3E%3Crect fill="%23fed7aa" width="100%" height="100%"/%3E%3C/svg%3E';
   const categorySlug = slugify(recipe.categoryName);
 
@@ -28,12 +29,22 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         >
           <span aria-hidden="true">←</span> Quay lại danh sách công thức
         </Link>
-        <Link
-          href={`/categories/${categorySlug}`}
-          className="rounded-full bg-orange-50 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-100"
-        >
-          {recipe.categoryName}
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          {canEdit && (
+            <Link
+              href={`/recipes/${recipe.id}/edit`}
+              className="rounded-full border border-orange-300 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-50"
+            >
+              Chỉnh sửa
+            </Link>
+          )}
+          <Link
+            href={`/categories/${categorySlug}`}
+            className="rounded-full bg-orange-50 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-100"
+          >
+            {recipe.categoryName}
+          </Link>
+        </div>
       </nav>
 
       <header className="mb-8">

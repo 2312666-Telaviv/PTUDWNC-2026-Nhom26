@@ -387,23 +387,28 @@ export const mockRecipes: RecipeDto[] = recipeSeeds.map((recipe, index) => ({
   isLiked: false,
 }));
 
+// Danh sách công khai: chỉ trả về công thức đã xuất bản.
 export function getMockRecipes(): RecipeListDto[] {
-  return mockRecipes.map((recipe) => ({
-    id: recipe.id,
-    title: recipe.title,
-    slug: recipe.slug,
-    description: recipe.description,
-    totalTime: recipe.totalTime,
-    servings: recipe.servings,
-    difficulty: recipe.difficulty,
-    categoryName: recipe.categoryName,
-    authorName: recipe.authorName,
-    primaryImageUrl: recipe.primaryImageUrl,
-    viewCount: recipe.viewCount,
-    createdAt: recipe.createdAt,
-  }));
+  return mockRecipes
+    .filter((recipe) => recipe.status === 'Published')
+    .map((recipe) => ({
+      id: recipe.id,
+      title: recipe.title,
+      slug: recipe.slug,
+      description: recipe.description,
+      totalTime: recipe.totalTime,
+      servings: recipe.servings,
+      difficulty: recipe.difficulty,
+      categoryName: recipe.categoryName,
+      authorName: recipe.authorName,
+      primaryImageUrl: recipe.primaryImageUrl,
+      viewCount: recipe.viewCount,
+      createdAt: recipe.createdAt,
+    }));
 }
 
 export function getMockRecipeBySlug(slug: string): RecipeDto | undefined {
-  return mockRecipes.find((recipe) => recipe.slug === slug);
+  return mockRecipes.find(
+    (recipe) => recipe.slug === slug && recipe.status === 'Published'
+  );
 }
