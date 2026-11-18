@@ -34,7 +34,7 @@ export function CreateRecipeForm({ categories }: CreateRecipeFormProps) {
     defaultValues: {
       title: '',
       description: '',
-      categoryId: '',
+      categoryId: 0,
       prepTimeMinutes: 15,
       cookTimeMinutes: 30,
       servings: 4,
@@ -126,7 +126,17 @@ export function CreateRecipeForm({ categories }: CreateRecipeFormProps) {
               control={control}
               name="categoryId"
               render={({ field }) => (
-                <select id="categoryId" className={`select ${errors.categoryId ? 'input-error' : ''}`} {...field}>
+                <select
+                  id="categoryId"
+                  className={`select ${errors.categoryId ? 'input-error' : ''}`}
+                  name={field.name}
+                  ref={field.ref}
+                  value={field.value || ''}
+                  onBlur={field.onBlur}
+                  onChange={(event) => {
+                    field.onChange(event.target.value === '' ? 0 : Number(event.target.value));
+                  }}
+                >
                   <option value="">-- Chọn danh mục --</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
