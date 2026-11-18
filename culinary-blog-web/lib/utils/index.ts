@@ -1,2 +1,3 @@
 export { cn } from './cn';
-export { formatDate, formatCurrency, slugify } from './format';
+export { formatDate, formatDateTime, formatNumber, formatCurrency, slugify } from './format';
+
