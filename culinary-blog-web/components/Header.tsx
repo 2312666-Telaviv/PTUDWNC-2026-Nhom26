@@ -12,6 +12,9 @@ export function Header() {
           <Link href="/recipes" className="text-gray-700 transition hover:text-orange-600">
             Công thức
           </Link>
+          <Link href="/blog" className="text-gray-700 transition hover:text-orange-600">
+            Blog
+          </Link>
         </nav>
         <UserMenu />
       </div>
