@@ -141,7 +141,7 @@ export default function ManageRecipesPage() {
 
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/recipes/${recipe.id}/edit`}>Chỉnh sửa</Link>
+                      <Link href={`/recipes/${recipe.slug}/edit`}>Chỉnh sửa</Link>
                     </Button>
                     {transitions[status]?.map((action) => (
                       <Button

@@ -12,7 +12,8 @@ import { useAuthStore } from '@/lib/stores/authStore';
 import type { RecipeDto, RecipeFormValues } from '@/types/api';
 
 export default function EditRecipePage() {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const router = useRouter();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
@@ -21,20 +22,18 @@ export default function EditRecipePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const id = Number(params.id);
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted || !Number.isFinite(id)) return;
+    if (!mounted || !slug) return;
     recipeService
-      .getById(id)
+      .getBySlug(slug)
       .then(setRecipe)
       .catch(() => setRecipe(null))
       .finally(() => setIsLoading(false));
-  }, [mounted, id]);
+  }, [mounted, slug]);
 
   if (!mounted) return null;
 
@@ -79,7 +78,7 @@ export default function EditRecipePage() {
   async function handleSubmit(values: RecipeFormValues, imageFile: File | null) {
     setIsSaving(true);
     try {
-      await recipeService.updateRecipe(id, { ...values, imageFile });
+      await recipeService.updateRecipe(Number(recipe!.id), { ...values, imageFile });
       toast({
         title: 'Cập nhật thành công',
         description: `Công thức "${values.title}" đã được lưu.`,
