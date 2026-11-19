@@ -28,6 +28,28 @@ export function formatDateTime(isoDate: string): string {
   return dateTimeFormatter.format(new Date(isoDate));
 }
 
+/**
+ * Định dạng số tiền theo đơn vị VNĐ. (từ nhánh Hương)
+ */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(amount);
+}
+
+/**
+ * Chuyển chuỗi tiêu đề thành slug URL an toàn. (từ nhánh Hương)
+ */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /** Định dạng số có dấu phân cách nghìn, ví dụ: 12.480 */
 export function formatNumber(value: number): string {
   return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');

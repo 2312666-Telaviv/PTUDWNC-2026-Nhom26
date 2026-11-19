@@ -1,4 +1,4 @@
-import { z } from 'zod';
+  import { z } from 'zod';
 
 // Schema dùng chung cho form tạo mới và cập nhật công thức.
 // Project đang dùng Zod v3 nên giữ cú pháp required_error / invalid_type_error.
@@ -29,11 +29,11 @@ export const recipeSchema = z.object({
     .min(20, 'Mô tả phải có ít nhất 20 ký tự')
     .max(2000, 'Mô tả không được vượt quá 2000 ký tự'),
 
-  categoryId: z
-    .string({
-      required_error: 'Vui lòng chọn danh mục',
-      invalid_type_error: 'Danh mục không hợp lệ',
-    })
+    categoryId: z
+  .string({
+    required_error: 'Vui lòng chọn danh mục',
+    invalid_type_error: 'Danh mục không hợp lệ',
+  })
     .uuid('Danh mục không hợp lệ'),
 
   prepTimeMinutes: z
@@ -147,6 +147,6 @@ export const recipeStatusSchema = z.enum(['Draft', 'Published', 'Archived', 'Del
 export type RecipeFormData = z.infer<typeof recipeSchema>;
 export type RecipeRequestData = z.infer<typeof recipeRequestSchema>;
 
-// Giữ tên cũ để không phá vỡ import hiện có.
+// Giữ tên cũ để không phá vỡ import hiện có (dùng bởi nhánh Hương).
 export const createRecipeSchema = recipeSchema;
 export type CreateRecipeFormData = RecipeFormData;

@@ -11,7 +11,7 @@ export interface User {
   avatarUrl?: string | null;
   // Danh sách quyền: 'Admin' | 'User' (khớp với role phía backend)
   roles?: string[];
-  // Thông tin bổ sung cho hồ sơ
+  // Thông tin bổ sung cho hồ sơ (từ nhánh Linh)
   phone?: string | null;
   bio?: string | null;
 }

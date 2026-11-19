@@ -6,6 +6,12 @@ import { FormEvent, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { RegisterRequest } from '@/types/api';
 
+/**
+ * Form đăng ký của blog app, dùng auth-store để lưu phiên đăng nhập sau khi đăng ký.
+ * Nhánh Linh: gọi API thật (POST /api/v1/auth/register).
+ * Nhánh Hương: giao diện mock + trạng thái đăng ký thành công.
+ * → Giữ cả hai logic: gọi API thật, hiển thị trạng thái đã đăng nhập nếu user có.
+ */
 export function AuthRegisterForm() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -15,9 +21,11 @@ export function AuthRegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const USE_MOCK_API =
-    process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' || process.env.USE_MOCK_API === 'true';
 
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const setAuth = useAuthStore((state) => state.setAuth);
   const setLoading = useAuthStore((state) => state.setLoading);
   const setError = useAuthStore((state) => state.setError);
   const clearError = useAuthStore((state) => state.clearError);
@@ -113,6 +121,24 @@ export function AuthRegisterForm() {
     }
   };
 
+  // Hiển thị trạng thái đã đăng nhập (từ nhánh Hương)
+  if (user) {
+    return (
+      <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+        <p className="font-semibold">Đăng ký thành công, chào mừng {user.name}.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/blog" className="btn btn-primary">
+            Xem bài viết
+          </Link>
+          <Link href="/blog/new" className="btn btn-outline">
+            Viết bài viết đầu tiên
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Hiển thị thông báo thành công (từ nhánh Linh)
   if (success) {
     return (
       <div className="rounded-md border border-green-200 bg-green-50 p-6 text-center">
@@ -128,14 +154,14 @@ export function AuthRegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {USE_MOCK_API && (
-        <div className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-700">
-          <strong>Chế độ demo:</strong> Dùng mock API, tài khoản không được lưu vào database thật.
-        </div>
-      )}
       {serverError && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {serverError}
+        </div>
+      )}
+      {error && !serverError && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
       )}
 
@@ -150,6 +176,7 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setName(event.target.value);
             if (serverError) setServerError(null);
+            if (error) clearError();
           }}
           placeholder="Nguyễn Văn A"
           className="input"
@@ -168,6 +195,7 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setEmail(event.target.value);
             if (serverError) setServerError(null);
+            if (error) clearError();
           }}
           placeholder="ban@example.com"
           className="input"
@@ -186,6 +214,7 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setPassword(event.target.value);
             if (serverError) setServerError(null);
+            if (error) clearError();
           }}
           placeholder="Tối thiểu 6 ký tự"
           className="input"
@@ -204,6 +233,7 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setConfirmPassword(event.target.value);
             if (serverError) setServerError(null);
+            if (error) clearError();
           }}
           placeholder="Nhập lại mật khẩu"
           className="input"
@@ -220,6 +250,10 @@ export function AuthRegisterForm() {
         <Link href="/login" className="font-medium text-orange-600 hover:underline">
           Đăng nhập
         </Link>
+      </p>
+
+      <p className="text-center text-xs text-gray-400">
+        Đây là giao diện tĩnh, dữ liệu đăng ký chỉ được lưu trong localStorage của trình duyệt.
       </p>
     </form>
   );
