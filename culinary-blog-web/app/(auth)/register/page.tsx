@@ -33,12 +33,6 @@ export default function RegisterPage() {
           <AuthRegisterForm />
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
-          <p className="text-center text-sm text-muted-foreground">
-            Đã có tài khoản?{' '}
-            <Link href="/login" className="font-medium text-primary hover:underline">
-              Đăng nhập ngay
-            </Link>
-          </p>
           <p className="mt-4 text-center text-sm text-gray-500">
             Quay lại{' '}
             <Link href="/" className="font-medium text-orange-600 hover:underline">
