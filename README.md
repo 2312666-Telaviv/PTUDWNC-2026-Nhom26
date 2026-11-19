@@ -191,6 +191,7 @@ Hoàn thành tính năng upload ảnh; xây dựng trang thêm mới/cập nhậ
 - Xây dựng trang xem danh sách người dùng (admin, tác giả)
 - Hoàn thiện các tính năng khác theo đặc tả trong file SRS
 
+
 ## Quy ước làm việc
 
 - Mỗi thành viên làm trên nhánh riêng, mở Pull Request vào `main`.

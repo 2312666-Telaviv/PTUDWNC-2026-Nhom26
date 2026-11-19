@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
+import { Pagination } from '@/components/common/Pagination';
 import { RecipeCard } from '@/components/recipe/RecipeCard';
 import { recipeApi } from '@/lib/api/server';
 import { getMockRecipes } from '@/lib/mock/recipes';
@@ -36,9 +36,6 @@ export default async function RecipesPagedPage({ params }: RecipesPagedPageProps
 
   const result = await recipeApi.getList({ page, pageSize: 12, categoryId: null });
 
-  const hasPrev = page > 1;
-  const hasNext = page < result.totalPages;
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold text-gray-900">Công thức nấu ăn</h1>
@@ -53,33 +50,11 @@ export default async function RecipesPagedPage({ params }: RecipesPagedPageProps
         <p className="py-8 text-center text-gray-500">Không tìm thấy công thức nào.</p>
       )}
 
-      <div className="mt-8 flex items-center justify-center gap-4">
-        {hasPrev && (
-          <Link
-            href={page === 2 ? '/recipes' : `/recipes/page/${page - 1}`}
-            className="rounded-md border border-orange-300 px-4 py-2 text-orange-700 transition hover:bg-orange-50"
-          >
-            Trước
-          </Link>
-        )}
-        {!hasPrev && (
-          <span className="px-4 py-2 text-orange-700 opacity-50">Trước</span>
-        )}
-        <span className="text-sm text-gray-600">
-          Trang {result.pageNumber} / {result.totalPages}
-        </span>
-        {hasNext && (
-          <Link
-            href={`/recipes/page/${page + 1}`}
-            className="rounded-md border border-orange-300 px-4 py-2 text-orange-700 transition hover:bg-orange-50"
-          >
-            Sau
-          </Link>
-        )}
-        {!hasNext && (
-          <span className="px-4 py-2 text-orange-700 opacity-50">Sau</span>
-        )}
-      </div>
+            <Pagination
+        currentPage={result.pageNumber}
+        totalPages={result.totalPages}
+        getHref={(p) => (p === 1 ? '/recipes' : `/recipes/page/${p}`)}
+      />
     </div>
   );
 }

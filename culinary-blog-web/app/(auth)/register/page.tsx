@@ -1,9 +1,36 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { AuthRegisterForm } from '@/components/auth/AuthRegisterForm';
+import { AuthStoreHydration } from '@/components/auth/AuthStoreHydration';
+
+export const metadata: Metadata = {
+  title: 'Đăng ký',
+  description: 'Tạo tài khoản Culinary Blog để chia sẻ công thức nấu ăn của bạn',
+};
+
 export default function RegisterPage() {
   return (
-    <div className="mx-auto max-w-md px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Đăng ký</h1>
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <p className="text-gray-600">Trang đăng ký (sẽ hoàn thiện ở Bài 2)</p>
+    <div className="bg-orange-50/50 px-4 py-10 sm:py-16">
+      <AuthStoreHydration />
+
+      <div className="mx-auto max-w-md">
+        <div className="rounded-lg border border-orange-100 bg-white p-6 shadow-sm sm:p-8">
+          <h1 className="text-2xl font-bold text-gray-900">Tạo tài khoản</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Chỉ mất vài giây để bắt đầu chia sẻ công thức cùng cộng đồng.
+          </p>
+
+          <div className="mt-6">
+            <AuthRegisterForm />
+          </div>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-gray-500">
+          Quay lại{' '}
+          <Link href="/" className="font-medium text-orange-600 hover:underline">
+            trang chủ
+          </Link>
+        </p>
       </div>
     </div>
   );

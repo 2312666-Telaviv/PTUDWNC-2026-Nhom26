@@ -13,6 +13,35 @@ export interface RecipeStepDto {
   imageUrl?: string | null;
 }
 
+// Trạng thái công thức theo luồng: Draft -> Published -> Archived/Deleted.
+// Deleted là xóa mềm: bản ghi vẫn còn nhưng không hiển thị công khai.
+export type RecipeStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
+
+// Payload dùng chung cho form tạo/cập nhật công thức.
+// categoryId dùng UUID của CategoryDto (khớp schema validate phía client/server).
+export interface RecipeRequest {
+  title: string;
+  description: string;
+  categoryId: string;
+  prepTimeMinutes: number;
+  cookTimeMinutes: number;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  primaryImageUrl?: string;
+  tags?: string;
+  ingredients: Array<{
+    name: string;
+    quantity: string;
+    unit: string;
+  }>;
+  steps: Array<{
+    title?: string;
+    description: string;
+    durationMinutes?: number;
+  }>;
+  status?: 'Draft' | 'Published';
+}
+
 export interface RecipeDto {
   id: number;
   title: string;
@@ -28,7 +57,7 @@ export interface RecipeDto {
   authorId: string;
   authorName: string;
   primaryImageUrl: string;
-  status: 'Draft' | 'Published' | 'Archived';
+  status: RecipeStatus;
   viewCount: number;
   likeCount: number;
   isLiked: boolean;
@@ -48,6 +77,7 @@ export interface RecipeListDto {
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   categoryName: string;
+  authorName?: string;
   primaryImageUrl: string;
   viewCount: number;
   createdAt: string;
@@ -90,6 +120,7 @@ export interface LoginResponseDto {
 export interface RegisterRequest {
   email: string;
   password: string;
+  name?: string;
 }
 
 export interface AssignRoleRequest {

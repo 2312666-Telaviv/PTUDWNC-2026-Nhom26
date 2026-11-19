@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
@@ -98,6 +99,13 @@ export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
           Tài khoản demo: <strong>demo@culinary.vn</strong> / <strong>Demo@123</strong>
         </p>
       )}
+
+      <p className="text-center text-sm text-gray-600">
+        Chưa có tài khoản?{' '}
+        <Link href="/register" className="font-medium text-orange-600 hover:underline">
+          Đăng ký ngay
+        </Link>
+      </p>
     </form>
   );
 }

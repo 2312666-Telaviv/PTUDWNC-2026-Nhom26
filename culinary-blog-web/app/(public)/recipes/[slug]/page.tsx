@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { RecipeDetail } from '@/components/recipe/RecipeDetail';
 import { CommentSection } from '@/components/recipe/CommentSection';
+import { canManageRecipe, getSessionActor } from '@/lib/api/route-auth';
 import { recipeApi } from '@/lib/api/server';
 
 interface RecipeDetailPageProps {
@@ -47,9 +48,12 @@ export default async function RecipeDetailPage({ params }: RecipeDetailPageProps
     notFound();
   }
 
+  const actor = await getSessionActor();
+  const canEdit = actor ? canManageRecipe(actor, recipe) : false;
+
   return (
     <>
-      <RecipeDetail recipe={recipe} />
+      <RecipeDetail recipe={recipe} canEdit={canEdit} />
       <CommentSection recipeId={recipe.id} />
     </>
   );

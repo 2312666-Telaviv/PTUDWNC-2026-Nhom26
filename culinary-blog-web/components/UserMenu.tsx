@@ -9,7 +9,6 @@ import { useUIStore } from '@/store/useUIStore';
 
 export function UserMenu() {
   const { data: session, status } = useSession();
-  // activeModal đến từ Zustand store (dùng chung toàn ứng dụng)
   const activeModal = useUIStore((state) => state.activeModal);
   const openModal = useUIStore((state) => state.openModal);
   const closeModal = useUIStore((state) => state.closeModal);
@@ -26,17 +25,23 @@ export function UserMenu() {
 
   if (!session) {
     return (
-      <Link
-        href="/login"
-        className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700"
-      >
-        Đăng nhập
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link
+          href="/login"
+          className="rounded-md border border-orange-300 bg-white px-4 py-2 text-sm font-medium text-orange-700 transition hover:bg-orange-50"
+        >
+          Đăng nhập
+        </Link>
+        <Link
+          href="/register"
+          className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700"
+        >
+          Đăng ký
+        </Link>
+      </div>
     );
   }
 
-  // Avatar: dùng next/image cho ảnh Google (lh3.googleusercontent.com đã whitelist),
-  // các ảnh khác (kể cả local) vẫn hiển thị bình thường; không có ảnh thì hiện chữ cái đầu.
   const avatarUrl = session.user?.image;
   const canUseNextImage =
     typeof avatarUrl === 'string' && (avatarUrl.startsWith('/') || avatarUrl.startsWith('https://'));
@@ -58,6 +63,12 @@ export function UserMenu() {
         </div>
       )}
       <span className="text-sm text-gray-700">Xin chào, {session.user?.name}</span>
+      <Link
+        href="/profile"
+        className="rounded-md border border-orange-300 px-4 py-2 text-sm font-medium text-orange-700 transition hover:bg-orange-50"
+      >
+        Hồ sơ cá nhân
+      </Link>
       {session.user?.roles?.includes('Admin') && (
         <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
           Admin
