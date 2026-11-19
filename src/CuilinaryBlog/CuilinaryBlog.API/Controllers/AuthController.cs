@@ -4,6 +4,7 @@ using CulinaryBlog.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace CulinaryBlog.API.Controllers;
@@ -11,6 +12,18 @@ namespace CulinaryBlog.API.Controllers;
 /// <summary>
 /// Đăng ký, đăng nhập và quản lý role người dùng.
 /// </summary>
+=======
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Asp.Versioning;
+
+namespace CulinaryBlog.API.Controllers;
+
+[ApiVersion("1.0")]
+[Route("api/[controller]")]
+>>>>>>> origin/2312665-KieuHaLinh
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -86,6 +99,7 @@ public class AuthController : ControllerBase
         });
     }
 
+<<<<<<< HEAD
     /// <summary>
     /// Gán role cho người dùng (chỉ Admin).
     /// </summary>
@@ -96,6 +110,100 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+=======
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Đổi mật khẩu thành công!" });
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+        {
+            // Không tiết lộ xem email có tồn tại hay không (bảo mật)
+            return Ok(new { message = "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi." });
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        // Ở đây thường gửi email chứa token reset mật khẩu.
+        // Trong ví dụ này, chúng tôi trả về token (trong thực tế KHÔNG nên làm vậy với production).
+        return Ok(new { message = "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn.", resetToken = token });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Đặt lại mật khẩu thành công!" });
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<IActionResult> GetProfile()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        var profile = new ProfileDto
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            UserName = user.UserName!,
+        };
+
+        return Ok(profile);
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound(new { message = "Không tìm thấy người dùng!" });
+
+        user.Email = model.Email;
+        user.UserName = model.Email;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { message = "Cập nhật hồ sơ thành công!" });
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        // Với JWT stateless, logout chủ yếu được xử lý ở client (xóa token).
+        // Endpoint này có thể dùng để invalidate token trên server nếu có blacklist.
+        return Ok(new { message = "Đăng xuất thành công!" });
+    }
+
+    [HttpPost("assign-role")]
+    [Authorize(Roles = "Admin")]
+>>>>>>> origin/2312665-KieuHaLinh
     public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
@@ -137,4 +245,14 @@ public class AuthController : ControllerBase
         /// <summary>Tên role cần gán (Admin hoặc User).</summary>
         public string Role { get; set; } = string.Empty;
     }
+<<<<<<< HEAD
+=======
+
+    public class ResetPasswordDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+    }
+>>>>>>> origin/2312665-KieuHaLinh
 }

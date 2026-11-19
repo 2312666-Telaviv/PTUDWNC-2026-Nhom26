@@ -4,6 +4,7 @@ using CulinaryBlog.Application.Services;
 using CulinaryBlog.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+<<<<<<< HEAD
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,12 @@ using Scalar.AspNetCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using System.Text.Json;
+=======
+using Microsoft.AspNetCore.RateLimiting;
+using Asp.Versioning;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
+>>>>>>> origin/2312665-KieuHaLinh
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -153,6 +160,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+<<<<<<< HEAD
 // Phân quyền theo policy cho các endpoint quản trị
 builder.Services.AddAuthorization(options =>
 {
@@ -168,6 +176,64 @@ builder.Services.AddScoped<CulinaryBlog.Application.Features.Recipes.CreateRecip
 
 // Đăng ký TokenService dùng chung cho đăng nhập
 builder.Services.AddScoped<ITokenService, TokenService>();
+=======
+// Cấu hình CORS cho phép front-end gọi API
+builder.Services.AddCors(options =>
+{
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+// Cấu hình Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    var permitLimit = builder.Configuration.GetValue<int>("RateLimiting:PermitLimit");
+    var windowSeconds = builder.Configuration.GetValue<int>("RateLimiting:WindowSeconds");
+    var authPermitLimit = builder.Configuration.GetValue<int>("RateLimiting:AuthPermitLimit");
+    var authWindowSeconds = builder.Configuration.GetValue<int>("RateLimiting:AuthWindowSeconds");
+
+    // Global limiter: 100 request / 60 giây per IP
+    options.AddFixedWindowLimiter("global", opt =>
+    {
+        opt.PermitLimit = permitLimit;
+        opt.Window = TimeSpan.FromSeconds(windowSeconds);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    // Auth limiter: strict hơn cho đăng nhập / đăng ký (5 request / 10 giây)
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.PermitLimit = authPermitLimit;
+        opt.Window = TimeSpan.FromSeconds(authWindowSeconds);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Cấu hình API Versioning
+var versioningBuilder = builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+});
+
+// Cấu hình API Explorer để sinh tài liệu đặc tả theo từng phiên bản
+versioningBuilder.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+>>>>>>> origin/2312665-KieuHaLinh
 
 var app = builder.Build();
 
@@ -178,6 +244,14 @@ app.UseMiddleware<CulinaryBlog.API.Middleware.ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+<<<<<<< HEAD
+=======
+    app.MapOpenApi();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/openapi/v1.json", "CulinaryBlog API V1");
+    });
+>>>>>>> origin/2312665-KieuHaLinh
 }
 
 // Swagger chạy ở mọi môi trường để luôn có tài liệu API
@@ -208,6 +282,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+<<<<<<< HEAD
 
 // CORS phải chạy trước Authentication/Authorization để OPTIONS preflight được trả về
 app.UseCors(CorsPolicyName);
@@ -215,10 +290,14 @@ app.UseCors(CorsPolicyName);
 // Rate limiter cần chạy sau routing để đọc được policy theo endpoint (EnableRateLimiting)
 app.UseRateLimiter();
 
+=======
+app.UseCors("AllowFrontend");
+app.UseRateLimiter();
+>>>>>>> origin/2312665-KieuHaLinh
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("global");
 
 app.MapOpenApi();
 app.MapScalarApiReference();

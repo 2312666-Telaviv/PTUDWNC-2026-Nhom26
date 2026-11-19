@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export interface RecipeIngredientDto {
   id: number;
   name: string;
@@ -23,10 +24,19 @@ export interface RecipeRequest {
   title: string;
   description: string;
   categoryId: string;
+=======
+export interface RecipeListDto {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  primaryImageUrl?: string;
+>>>>>>> origin/2312665-KieuHaLinh
   prepTimeMinutes: number;
   cookTimeMinutes: number;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+<<<<<<< HEAD
   primaryImageUrl?: string;
   tags?: string;
   ingredients: Array<{
@@ -93,14 +103,68 @@ export interface CommentDto {
   updatedAt: string;
   parentId?: number | null;
   replies?: CommentDto[];
+=======
+  categoryName: string;
+  authorName: string;
+  createdAt: string;
+}
+
+export interface RecipeStepDto {
+  id: string;
+  stepNumber: number;
+  description: string;
+  durationMinutes?: number;
+}
+
+export interface RecipeIngredientDto {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  notes?: string;
+}
+
+export interface RecipeDto extends RecipeListDto {
+  instructions?: string;
+  steps: RecipeStepDto[];
+  ingredients: RecipeIngredientDto[];
+  likeCount: number;
+  isLiked: boolean;
+>>>>>>> origin/2312665-KieuHaLinh
 }
 
 export interface PaginatedResult<T> {
   items: T[];
   totalCount: number;
+<<<<<<< HEAD
   pageNumber: number;
   pageSize: number;
   totalPages: number;
+=======
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+/* ===== Auth Types ===== */
+
+export interface AuthTokens {
+  token: string;
+  expiration: string;
+}
+
+export interface ProfileDto {
+  id: string;
+  email: string;
+  userName: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+>>>>>>> origin/2312665-KieuHaLinh
 }
 
 export interface LoginRequest {
@@ -108,6 +172,7 @@ export interface LoginRequest {
   password: string;
 }
 
+<<<<<<< HEAD
 export interface LoginResponseDto {
   accessToken: string;
   expiration: string;
@@ -146,3 +211,40 @@ export interface RecipeFilters {
   minTotalTime?: number;
   maxTotalTime?: number;
 }
+=======
+export interface ChangePasswordRequest {
+  email: string;
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+}
+
+export interface UpdateProfileRequest {
+  email: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  token: string;
+  expiration: string;
+}
+
+export interface AuthState {
+  user: ProfileDto | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  setUser: (user: ProfileDto | null, token: string | null) => void;
+  login: (token: string, user: ProfileDto) => void;
+  logout: () => void;
+}
+>>>>>>> origin/2312665-KieuHaLinh

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+<<<<<<< HEAD
 using System.Security.Claims;
 
 namespace CulinaryBlog.API.Controllers
@@ -13,6 +14,14 @@ namespace CulinaryBlog.API.Controllers
     /// <summary>
     /// Quản lý công thức nấu ăn.
     /// </summary>
+=======
+using Asp.Versioning;
+
+namespace CulinaryBlog.API.Controllers
+{
+    [ApiVersion("1.0")]
+    [Route("api/v1/recipes")]
+>>>>>>> origin/2312665-KieuHaLinh
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/recipes")]
