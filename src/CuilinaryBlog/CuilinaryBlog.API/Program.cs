@@ -129,6 +129,27 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole(roleName));
         }
     }
+
+    // Tài khoản demo để đăng nhập ngay sau khi chạy ứng dụng
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    const string demoEmail = "demo@culinaryblog.com";
+    const string demoPassword = "Demo@123";
+
+    if (await userManager.FindByEmailAsync(demoEmail) == null)
+    {
+        var demoUser = new IdentityUser
+        {
+            UserName = demoEmail,
+            Email = demoEmail,
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(demoUser, demoPassword);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(demoUser, "User");
+        }
+    }
 }
 
 app.UseStaticFiles(); // Phục vụ ảnh upload trong wwwroot/images/recipes

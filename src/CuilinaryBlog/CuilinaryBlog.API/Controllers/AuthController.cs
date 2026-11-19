@@ -48,6 +48,8 @@ public class AuthController : ControllerBase
             // Tạo JWT Token kèm theo claims và roles
             var authClaims = new List<Claim>
         {
+            // NameIdentifier là claim chuẩn để UserManager.GetUserAsync() nhận diện user
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };

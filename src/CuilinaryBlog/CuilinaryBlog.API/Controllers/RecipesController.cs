@@ -37,6 +37,7 @@ namespace CulinaryBlog.API.Controllers
         private string CurrentUserId =>
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? User.FindFirst("sub")?.Value
+            ?? User.FindFirst(ClaimTypes.Name)?.Value
             ?? string.Empty;
 
         private static string NormalizeStatus(string? status)
