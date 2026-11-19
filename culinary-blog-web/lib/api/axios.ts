@@ -3,7 +3,7 @@ import axios from 'axios';
 // Base URL trỏ tới .NET API.
 // .env.local thường khai báo ...:5001/api trong khi các service dùng đường dẫn
 // /api/v1/... nên ta chuẩn hóa lại để tránh bị nhân đôi "/api".
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5001';
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041';
 const baseURL = rawBaseUrl.replace(/\/api\/?$/, '');
 
 export const axiosInstance = axios.create({
