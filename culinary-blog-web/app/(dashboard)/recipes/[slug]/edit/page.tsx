@@ -63,7 +63,7 @@ async function EditRecipeContent({ slug }: { slug: string }) {
   const recipeId = /^\d+$/.test(slug) ? Number(slug) : NaN;
   if (Number.isSafeInteger(recipeId) && recipeId > 0) {
     try {
-      recipe = await recipeApi.getById(recipeId, { includeUnpublished: true });
+      recipe = await recipeApi.getById(recipeId);
     } catch {
       recipe = undefined;
     }

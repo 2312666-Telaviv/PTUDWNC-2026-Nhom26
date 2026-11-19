@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { RecipeDetail } from '@/components/recipe/RecipeDetail';
 import { CommentSection } from '@/components/recipe/CommentSection';
 import { canManageRecipe, getSessionActor } from '@/lib/api/route-auth';
+import { RECIPE_UPDATE_SUCCESS_MESSAGE } from '@/lib/recipe-form';
 import { recipeApi } from '@/lib/api/server';
 import { recipeService } from '@/lib/api/services';
 import type { RecipeDto } from '@/types/api';
@@ -11,10 +12,11 @@ interface RecipeDetailPageProps {
   params: Promise<{
     slug: string;
   }>;
+  searchParams?: Promise<{
+    updated?: string | string[];
+  }>;
 }
 
-// Ưu tiên nguồn server (fetch trực tiếp + mock an toàn), sau đó thử axios service
-// của nhánh client trước khi trả về notFound.
 async function loadRecipe(slug: string): Promise<RecipeDto | null> {
   try {
     return await recipeApi.getBySlug(slug);
@@ -54,8 +56,10 @@ export async function generateMetadata({ params }: RecipeDetailPageProps): Promi
   }
 }
 
-export default async function RecipeDetailPage({ params }: RecipeDetailPageProps) {
+export default async function RecipeDetailPage({ params, searchParams }: RecipeDetailPageProps) {
   const { slug } = await params;
+  const query = await searchParams;
+  const justUpdated = query?.updated === '1';
   const recipe = await loadRecipe(slug);
 
   if (!recipe) {
@@ -73,6 +77,13 @@ export default async function RecipeDetailPage({ params }: RecipeDetailPageProps
 
   return (
     <>
+      {justUpdated && (
+        <div role="status" aria-live="polite" className="mx-auto mt-6 max-w-4xl px-4">
+          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 shadow-sm">
+            {RECIPE_UPDATE_SUCCESS_MESSAGE}
+          </div>
+        </div>
+      )}
       <RecipeDetail recipe={detailRecipe} canEdit={canEdit} />
       <CommentSection recipeId={recipe.id} />
     </>

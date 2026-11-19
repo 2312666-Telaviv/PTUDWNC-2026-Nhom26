@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { RecipeDto } from '@/types/api';
 import { LikeButton } from '@/components/recipe/LikeButton';
+import { DeleteRecipeButton } from '@/components/recipe/DeleteRecipeButton';
 import { formatDate } from '@/lib/utils/format';
 import { slugify } from '@/lib/utils/slugify';
 
@@ -31,12 +32,19 @@ export function RecipeDetail({ recipe, canEdit = false }: RecipeDetailProps) {
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           {canEdit && (
-            <Link
-              href={`/recipes/${recipe.id}/edit`}
-              className="rounded-full border border-orange-300 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-50"
-            >
-              Chỉnh sửa
-            </Link>
+            <>
+              <Link
+                href={`/recipes/${recipe.slug}/edit`}
+                className="rounded-full border border-orange-300 px-3 py-1 font-medium text-orange-700 transition hover:bg-orange-50"
+              >
+                Chỉnh sửa
+              </Link>
+              <DeleteRecipeButton
+                recipeId={recipe.id}
+                recipeTitle={recipe.title}
+                redirectTo="/recipes"
+              />
+            </>
           )}
           <Link
             href={`/categories/${categorySlug}`}

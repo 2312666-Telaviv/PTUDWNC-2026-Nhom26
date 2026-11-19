@@ -12,10 +12,18 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 function getStoredToken(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = window.localStorage.getItem('auth-storage');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
-    return parsed?.state?.token ?? null;
+    const authStoreRaw = window.localStorage.getItem('culinary-blog-auth-v1');
+    if (authStoreRaw) {
+      const authStore = JSON.parse(authStoreRaw) as {
+        state?: { accessToken?: string | null };
+      };
+      if (authStore.state?.accessToken) return authStore.state.accessToken;
+    }
+
+    const legacyRaw = window.localStorage.getItem('auth-storage');
+    if (!legacyRaw) return null;
+    const legacy = JSON.parse(legacyRaw) as { state?: { token?: string | null } };
+    return legacy.state?.token ?? null;
   } catch {
     return null;
   }
@@ -48,8 +56,10 @@ async function applyAuth(config: InternalAxiosRequestConfig) {
 
 function redirectOnUnauthorized(error: AxiosError) {
   const originalRequest = error.config as RetryableRequestConfig | undefined;
+  const url = originalRequest?.url ?? '';
+  const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
 
-  if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+  if (!isAuthEndpoint && error.response?.status === 401 && originalRequest && !originalRequest._retry) {
     originalRequest._retry = true;
     if (typeof window !== 'undefined') {
       window.location.href = '/login';

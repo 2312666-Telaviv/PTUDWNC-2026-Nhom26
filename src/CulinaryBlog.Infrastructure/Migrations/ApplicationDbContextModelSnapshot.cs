@@ -22,6 +22,35 @@ namespace CulinaryBlog.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CulinaryBlog.Domain.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Categories", (string)null);
+                });
+
             modelBuilder.Entity("CulinaryBlog.Domain.Entities.Ingredient", b =>
                 {
                     b.Property<int>("Id")
@@ -84,6 +113,9 @@ namespace CulinaryBlog.Infrastructure.Migrations
                     b.Property<string>("Instructions")
                         .HasColumnType("text");
 
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PrepTimeMinutes")
                         .HasColumnType("integer");
 
@@ -109,6 +141,9 @@ namespace CulinaryBlog.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

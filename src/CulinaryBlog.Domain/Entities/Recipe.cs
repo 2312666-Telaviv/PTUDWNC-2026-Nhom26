@@ -40,6 +40,10 @@
         public DateTime? UpdatedAt { get; set; }
         public DateTime? PublishedAt { get; set; }
 
+        // Mức độ yêu thích của cộng đồng
+        public int LikeCount { get; set; }
+        public int ViewCount { get; set; }
+
         // Các mối quan hệ 1-nhiều tương ứng với .Include() ở Controller
         public virtual ICollection<Step> Steps { get; set; } = new List<Step>();
         public virtual ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();

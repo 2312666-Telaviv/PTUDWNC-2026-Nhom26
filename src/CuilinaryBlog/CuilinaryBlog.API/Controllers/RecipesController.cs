@@ -40,6 +40,12 @@ namespace CulinaryBlog.API.Controllers
             ["Deleted"] = new[] { "Draft" } // khôi phục bản nháp
         };
 
+        private static readonly string[] SystemSeedEmails =
+        {
+            "demo@culinaryblog.com",
+            "demo@culinaryblog.vn"
+        };
+
         public RecipesController(
             CreateRecipeCommandHandler handler,
             ApplicationDbContext context,
@@ -92,8 +98,25 @@ namespace CulinaryBlog.API.Controllers
             createdAt = r.CreatedAt,
             updatedAt = r.UpdatedAt,
             publishedAt = r.PublishedAt,
-            steps = r.Steps,
+            likeCount = r.LikeCount,
+            viewCount = r.ViewCount,
+            steps = r.Steps
+                .OrderBy(s => s.StepNumber)
+                .Select(s => new
+                {
+                    id = s.Id,
+                    stepNumber = s.StepNumber,
+                    instruction = s.Instruction
+                })
+                .ToList(),
             ingredients = r.Ingredients
+                .Select(i => new
+                {
+                    id = i.Id,
+                    name = i.Name,
+                    quantity = i.Quantity
+                })
+                .ToList()
         };
 
         private async Task<(string? Url, string? Error)> SaveImageAsync(IFormFile? file)
@@ -196,6 +219,7 @@ namespace CulinaryBlog.API.Controllers
             {
                 id = recipeId,
                 recipeId,
+                slug = recipe?.Slug ?? dto.Slug,
                 title = command.Title,
                 message = "Tạo thành công!",
                 status,
@@ -213,7 +237,8 @@ namespace CulinaryBlog.API.Controllers
             [FromQuery] string mode = "split",
             [FromQuery] string? status = null,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] bool includeSystemSeed = false)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -234,6 +259,13 @@ namespace CulinaryBlog.API.Controllers
             else
             {
                 query = query.Where(r => r.Status != "Deleted");
+            }
+
+            if (!includeSystemSeed)
+            {
+                var seedEmails = SystemSeedEmails.Select(email => email.ToLowerInvariant()).ToArray();
+                query = query.Where(r =>
+                    r.Author == null || !seedEmails.Contains((r.Author.Email ?? string.Empty).ToLower()));
             }
 
             var totalCount = await query.CountAsync();
@@ -513,7 +545,7 @@ namespace CulinaryBlog.API.Controllers
         }
 
         /// <summary>
-        /// Xóa mềm công thức (chuyển sang Deleted, chỉ chủ sở hữu hoặc Admin được phép).
+        /// Xóa vĩnh viễn công thức khỏi database (chỉ chủ sở hữu hoặc Admin được phép).
         /// </summary>
         [HttpDelete("{id:int}")]
         [Authorize]
@@ -523,7 +555,10 @@ namespace CulinaryBlog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
+            var recipe = await _context.Recipes
+                .Include(r => r.Steps)
+                .Include(r => r.Ingredients)
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (recipe is null)
             {
                 return NotFound(new { message = $"Không tìm thấy công thức có id = {id}." });
@@ -534,11 +569,15 @@ namespace CulinaryBlog.API.Controllers
                 return Forbid();
             }
 
-            recipe.Status = "Deleted";
-            recipe.UpdatedAt = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(recipe.ImageUrl))
+            {
+                await _imageService.DeleteImageAsync(recipe.ImageUrl);
+            }
+
+            _context.Recipes.Remove(recipe);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Đã xóa công thức.", recipeId = id, status = recipe.Status });
+            return Ok(new { message = "Đã xóa công thức vĩnh viễn.", recipeId = id });
         }
 
         private static T ReadRecipeDto<T>(IFormCollection form) where T : CreateRecipeDto, new()

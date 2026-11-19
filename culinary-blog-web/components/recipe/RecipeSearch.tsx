@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { RecipeGrid } from '@/components/recipe/RecipeGrid';
-import { mockRecipes } from '@/lib/mock/recipes';
+import { recipeService } from '@/lib/api/services';
+import type { RecipeListDto } from '@/types/api';
 
 type Difficulty = 'Easy' | 'Medium' | 'Hard';
 type SortValue = '-createdAt' | 'createdAt' | 'title' | '-title' | 'cookTime' | '-cookTime';
-type MockRecipe = (typeof mockRecipes)[number];
 
 const DEFAULT_SORT: SortValue = '-createdAt';
 
@@ -34,7 +35,6 @@ interface SearchFilters {
   sort: SortValue;
 }
 
-// Bỏ dấu tiếng Việt và viết thường để tìm "khai vi" vẫn ra "Khai vị"
 function normalize(text: string): string {
   return text
     .toLowerCase()
@@ -53,54 +53,34 @@ function parseSort(value: string | null): SortValue {
 }
 
 function parsePositiveInt(value: string | null): number | undefined {
-  if (!value) {
-    return undefined;
-  }
+  if (!value) return undefined;
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function searchRecipes(filters: SearchFilters): MockRecipe[] {
+function filterAndSortRecipes(recipes: RecipeListDto[], filters: SearchFilters): RecipeListDto[] {
   const words = normalize(filters.query).split(/\s+/).filter(Boolean);
-
-  const matched = mockRecipes.filter((recipe) => {
+  const matched = recipes.filter((recipe) => {
     if (words.length > 0) {
       const haystack = normalize(
-        [
-          recipe.title,
-          recipe.categoryName,
-          recipe.description,
-          ...recipe.ingredients.map((ingredient) => ingredient.name),
-        ].join(' ')
+        [recipe.title, recipe.categoryName, recipe.description].join(' ')
       );
-      // Công thức phải chứa tất cả các từ khóa người dùng gõ
-      if (!words.every((word) => haystack.includes(word))) {
-        return false;
-      }
+      if (!words.every((word) => haystack.includes(word))) return false;
     }
-    if (filters.difficulty && recipe.difficulty !== filters.difficulty) {
-      return false;
-    }
-    if (filters.maxCookTime !== undefined && recipe.cookingTime > filters.maxCookTime) {
-      return false;
-    }
-    if (filters.minServings !== undefined && recipe.servings < filters.minServings) {
-      return false;
-    }
+    if (filters.difficulty && recipe.difficulty !== filters.difficulty) return false;
+    if (filters.maxCookTime && (recipe.cookTimeMinutes ?? 0) > filters.maxCookTime) return false;
+    if (filters.minServings && recipe.servings < filters.minServings) return false;
     return true;
   });
 
-  // Tiền tố "-" nghĩa là sắp xếp giảm dần (theo SRS)
   const descending = filters.sort.startsWith('-');
   const field = descending ? filters.sort.slice(1) : filters.sort;
   const direction = descending ? -1 : 1;
 
-  return [...matched].sort((a, b) => {
-    if (field === 'title') {
-      return a.title.localeCompare(b.title, 'vi') * direction;
-    }
+  return matched.sort((a, b) => {
+    if (field === 'title') return a.title.localeCompare(b.title, 'vi') * direction;
     if (field === 'cookTime') {
-      return (a.cookingTime - b.cookingTime) * direction;
+      return ((a.cookTimeMinutes ?? 0) - (b.cookTimeMinutes ?? 0)) * direction;
     }
     return (Date.parse(a.createdAt) - Date.parse(b.createdAt)) * direction;
   });
@@ -112,6 +92,7 @@ const fieldClass =
 export function RecipeSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const search = searchParams.toString();
 
   const filters: SearchFilters = {
     query: (searchParams.get('q') ?? '').trim(),
@@ -121,11 +102,47 @@ export function RecipeSearch() {
     sort: parseSort(searchParams.get('sort')),
   };
 
+  const [results, setResults] = useState<RecipeListDto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+    setError(null);
+
+    recipeService
+      .getList({ page: 1, pageSize: 100, status: 'Published' })
+      .then((result) => {
+        if (!active) return;
+        const params = new URLSearchParams(search);
+        const current: SearchFilters = {
+          query: (params.get('q') ?? '').trim(),
+          difficulty: parseDifficulty(params.get('difficulty')),
+          maxCookTime: parsePositiveInt(params.get('maxCookTime')),
+          minServings: parsePositiveInt(params.get('minServings')),
+          sort: parseSort(params.get('sort')),
+        };
+        setResults(filterAndSortRecipes(result.items, current));
+      })
+      .catch((cause) => {
+        if (!active) return;
+        setResults([]);
+        setError(cause instanceof Error ? cause.message : 'Không thể tải công thức.');
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [search]);
+
   const hasCriteria = Boolean(
     filters.query || filters.difficulty || filters.maxCookTime || filters.minServings
   );
   const hasAnyParam = hasCriteria || filters.sort !== DEFAULT_SORT;
-  const results = hasCriteria ? searchRecipes(filters) : [];
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,38 +150,27 @@ export function RecipeSearch() {
     const params = new URLSearchParams();
 
     const q = String(data.get('q') ?? '').trim();
-    if (q) {
-      params.set('q', q);
-    }
+    if (q) params.set('q', q);
 
     const difficulty = parseDifficulty(String(data.get('difficulty') ?? ''));
-    if (difficulty) {
-      params.set('difficulty', difficulty);
-    }
+    if (difficulty) params.set('difficulty', difficulty);
 
     const maxCookTime = parsePositiveInt(String(data.get('maxCookTime') ?? ''));
-    if (maxCookTime) {
-      params.set('maxCookTime', String(maxCookTime));
-    }
+    if (maxCookTime) params.set('maxCookTime', String(maxCookTime));
 
     const minServings = parsePositiveInt(String(data.get('minServings') ?? ''));
-    if (minServings) {
-      params.set('minServings', String(minServings));
-    }
+    if (minServings) params.set('minServings', String(minServings));
 
     const sort = parseSort(String(data.get('sort') ?? ''));
-    if (sort !== DEFAULT_SORT) {
-      params.set('sort', sort);
-    }
+    if (sort !== DEFAULT_SORT) params.set('sort', sort);
 
-    const queryString = params.toString();
-    router.push(queryString ? `/recipes/search?${queryString}` : '/recipes/search');
+    router.push(params.toString() ? `/recipes/search?${params.toString()}` : '/recipes/search');
   };
 
   return (
     <div>
       <form
-        key={searchParams.toString()}
+        key={search}
         onSubmit={handleSubmit}
         role="search"
         className="mb-6 rounded-lg border border-orange-100 bg-white p-4"
@@ -174,7 +180,7 @@ export function RecipeSearch() {
             name="q"
             type="search"
             defaultValue={filters.query}
-            placeholder="Tìm theo tên món, nguyên liệu, danh mục..."
+            placeholder="Tìm theo tên món, danh mục..."
             aria-label="Từ khóa tìm kiếm"
             className="w-full rounded-md border border-orange-200 px-4 py-2 text-gray-900 focus:border-orange-500 focus:outline-none"
           />
@@ -244,13 +250,16 @@ export function RecipeSearch() {
         )}
       </form>
 
-      {!hasCriteria && (
+      {isLoading && <p className="py-8 text-center text-gray-500">Đang tìm công thức...</p>}
+      {!isLoading && error && (
+        <p className="py-8 text-center text-red-600">{error}</p>
+      )}
+      {!isLoading && !error && !hasCriteria && (
         <p className="py-8 text-center text-gray-500">
-          Nhập từ khóa hoặc chọn bộ lọc để tìm công thức (ví dụ: bún, nước mắm, khai vị).
+          Nhập từ khóa hoặc chọn bộ lọc để tìm công thức.
         </p>
       )}
-
-      {hasCriteria && (
+      {!isLoading && !error && hasCriteria && (
         <>
           <p className="mb-4 text-sm text-gray-600">
             Tìm thấy {results.length} công thức

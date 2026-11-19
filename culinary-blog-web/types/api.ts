@@ -37,6 +37,8 @@ export interface RecipeListDto {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   categoryName: string;
   viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
 }
 
 export interface RecipeDto extends RecipeListDto {
@@ -116,6 +118,8 @@ export interface RecipeFilters {
   page?: number;
   pageSize?: number;
   categoryId?: number | string | null;
+  categoryName?: string;
+  status?: RecipeStatus;
   keyword?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   minTotalTime?: number;
@@ -191,6 +195,8 @@ export interface RecipeFormValues {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   categoryName: string;
   instructions?: string;
+  ingredients: RecipeIngredientDto[];
+  steps: RecipeStepDto[];
 }
 
 export interface CreateRecipeRequest extends RecipeFormValues {
@@ -205,6 +211,7 @@ export interface UpdateRecipeRequest extends RecipeFormValues {
 export interface CreateRecipeResponse {
   message: string;
   recipeId: number;
+  slug?: string;
   status?: RecipeStatus;
   imageUrl?: string;
 }

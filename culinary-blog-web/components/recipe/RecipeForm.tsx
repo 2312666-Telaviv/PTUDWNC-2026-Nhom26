@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { FileUpload } from '@/components/ui/file-upload';
-import type { RecipeFormValues, RecipeStatus } from '@/types/api';
+import type { RecipeStatus } from '@/types/api';
 
 const recipeSchema = z.object({
   title: z.string().min(1, 'Vui lòng nhập tên công thức').max(200, 'Tối đa 200 ký tự'),
@@ -25,13 +25,15 @@ const recipeSchema = z.object({
   instructions: z.string().optional(),
 });
 
+type LocalRecipeFormValues = z.infer<typeof recipeSchema>;
+
 const difficultyOptions: { value: 'Easy' | 'Medium' | 'Hard'; label: string }[] = [
   { value: 'Easy', label: 'Dễ' },
   { value: 'Medium', label: 'Trung bình' },
   { value: 'Hard', label: 'Khó' },
 ];
 
-export const defaultRecipeValues: RecipeFormValues = {
+export const defaultRecipeValues: LocalRecipeFormValues = {
   title: '',
   description: '',
   slug: '',
@@ -45,11 +47,11 @@ export const defaultRecipeValues: RecipeFormValues = {
 
 interface RecipeFormProps {
   mode: 'create' | 'edit';
-  defaultValues?: Partial<RecipeFormValues>;
+  defaultValues?: Partial<LocalRecipeFormValues>;
   existingImageUrl?: string | null;
   isLoading?: boolean;
   onSubmitForm: (
-    values: RecipeFormValues,
+    values: LocalRecipeFormValues,
     imageFile: File | null,
     status?: RecipeStatus
   ) => Promise<void>;
@@ -63,7 +65,7 @@ export function RecipeForm({
   onSubmitForm,
 }: RecipeFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const form = useForm<RecipeFormValues>({
+  const form = useForm<LocalRecipeFormValues>({
     resolver: zodResolver(recipeSchema),
     defaultValues: { ...defaultRecipeValues, ...defaultValues },
   });

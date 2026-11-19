@@ -4,10 +4,10 @@ import type { RecipeStatus } from '@/types/api';
 // (API route kiểm tra chuyển trạng thái) và UI (chỉ hiện nút hợp lệ).
 // Luồng: Draft -> Published -> Archived/Deleted.
 export const RECIPE_STATUS_TRANSITIONS: Record<RecipeStatus, readonly RecipeStatus[]> = {
-  Draft: ['Published'],
+  Draft: ['Published', 'Deleted'],
   Published: ['Archived', 'Deleted'],
-  Archived: ['Deleted'],
-  Deleted: [],
+  Archived: ['Published', 'Deleted'],
+  Deleted: ['Draft'],
 };
 
 export const RECIPE_STATUS_LABELS: Record<RecipeStatus, string> = {
@@ -61,6 +61,17 @@ export function getRecipeStatusActions(status: RecipeStatus): RecipeStatusAction
         confirmTitle: 'Lưu trữ công thức?',
         confirmDescription:
           'Công thức sẽ không còn hiển thị ở trang công khai cho đến khi được xử lý tiếp.',
+      };
+    }
+
+    if (to === 'Draft') {
+      return {
+        to,
+        label: 'Khôi phục bản nháp',
+        tone: 'secondary',
+        requireConfirm: false,
+        confirmTitle: '',
+        confirmDescription: '',
       };
     }
 

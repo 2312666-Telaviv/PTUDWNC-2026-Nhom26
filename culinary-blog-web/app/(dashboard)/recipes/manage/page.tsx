@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { DeleteRecipeButton } from '@/components/recipe/DeleteRecipeButton';
 import { recipeService } from '@/lib/api/services';
-import { useAuthStore } from '@/lib/stores/authStore';
+import { useAuthStore } from '@/store/auth-store';
 import type { RecipeDto, RecipeStatus } from '@/types/api';
 
 const statusMeta: Record<RecipeStatus, { label: string; className: string }> = {
@@ -18,21 +19,10 @@ const statusMeta: Record<RecipeStatus, { label: string; className: string }> = {
 
 // Luồng trạng thái hợp lệ (phải khớp với RecipesController.StatusTransitions)
 const transitions: Record<RecipeStatus, { status: RecipeStatus; label: string; variant?: 'outline' | 'destructive' }[]> = {
-  Draft: [
-    { status: 'Published', label: 'Đăng công thức' },
-    { status: 'Deleted', label: 'Xóa', variant: 'destructive' },
-  ],
-  Published: [
-    { status: 'Archived', label: 'Lưu trữ', variant: 'outline' },
-    { status: 'Deleted', label: 'Xóa', variant: 'destructive' },
-  ],
-  Archived: [
-    { status: 'Published', label: 'Đăng lại' },
-    { status: 'Deleted', label: 'Xóa', variant: 'destructive' },
-  ],
-  Deleted: [
-    { status: 'Draft', label: 'Khôi phục' },
-  ],
+  Draft: [{ status: 'Published', label: 'Đăng công thức' }],
+  Published: [{ status: 'Archived', label: 'Lưu trữ', variant: 'outline' }],
+  Archived: [{ status: 'Published', label: 'Đăng lại' }],
+  Deleted: [{ status: 'Draft', label: 'Khôi phục' }],
 };
 
 function StatusBadge({ status }: { status: RecipeStatus }) {
@@ -97,7 +87,7 @@ export default function ManageRecipesPage() {
         <div>
           <h1 className="text-3xl font-bold">Quản lý công thức</h1>
           <p className="text-muted-foreground">
-            Thêm mới, chỉnh sửa và chuyển trạng thái: Nháp → Đã đăng → Lưu trữ / Đã xóa
+            Thêm mới, chỉnh sửa, xóa vĩnh viễn và chuyển trạng thái: Nháp → Đã đăng → Lưu trữ
           </p>
         </div>
         <Button asChild><Link href="/recipes/create">+ Thêm công thức</Link></Button>
@@ -143,6 +133,13 @@ export default function ManageRecipesPage() {
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/recipes/${recipe.slug}/edit`}>Chỉnh sửa</Link>
                     </Button>
+                    <DeleteRecipeButton
+                      recipeId={Number(recipe.id)}
+                      recipeTitle={recipe.title}
+                      onDeleted={(id) =>
+                        setRecipes((prev) => prev.filter((item) => Number(item.id) !== id))
+                      }
+                    />
                     {transitions[status]?.map((action) => (
                       <Button
                         key={action.status}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,8 +11,12 @@ import {
   useUpdateRecipe,
 } from '@/hooks/useRecipes';
 import { getApiErrorMessage } from '@/lib/api/errorMessage';
+import { RECIPE_UPDATE_SUCCESS_MESSAGE } from '@/lib/recipe-form';
+import { slugify } from '@/lib/utils/slugify';
+import { FileUpload } from '@/components/ui/file-upload';
+import { useToast } from '@/components/ui/use-toast';
 import type { CategoryDto } from '@/types/category';
-import type { RecipeRequest, RecipeStatus } from '@/types/api';
+import type { CreateRecipeRequest, RecipeStatus, UpdateRecipeRequest } from '@/types/api';
 
 interface RecipeFormProps {
   categories: CategoryDto[];
@@ -31,7 +35,10 @@ const difficultyOptions: { value: RecipeFormData['difficulty']; label: string }[
 const emptyValues: RecipeFormData = {
   title: '',
   description: '',
+  slug: '',
+  instructions: '',
   categoryId: '',
+  categoryName: '',
   prepTimeMinutes: 15,
   cookTimeMinutes: 30,
   servings: 4,
@@ -50,8 +57,10 @@ export function RecipeForm({
   initialStatus,
 }: RecipeFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const {
     register,
@@ -59,10 +68,19 @@ export function RecipeForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
+    watch,
   } = useForm<RecipeFormData>({
     resolver: zodResolver(recipeSchema),
     defaultValues: initialValues ?? emptyValues,
   });
+
+  const selectedCategoryName = watch('categoryName');
+
+  useEffect(() => {
+    const selected = categories.find((category) => category.name === selectedCategoryName);
+    setValue('categoryId', selected?.id ?? slugify(selectedCategoryName));
+  }, [categories, selectedCategoryName, setValue]);
 
   const {
     fields: stepFields,
@@ -93,13 +111,13 @@ export function RecipeForm({
     setSuccessMessage(null);
     setFormError(null);
 
-    const payload: RecipeRequest = {
-      ...data,
-      status: mode === 'create' ? status === 'Published' ? 'Published' : 'Draft' : undefined,
-    };
-
     try {
       if (mode === 'create') {
+        const payload: CreateRecipeRequest = {
+          ...data,
+          imageFile,
+          status: status === 'Published' ? 'Published' : 'Draft',
+        };
         const result = await createRecipe.mutateAsync(payload);
         setSuccessMessage(
           result.status === 'Published'
@@ -116,11 +134,28 @@ export function RecipeForm({
         return;
       }
 
+      const payload: UpdateRecipeRequest = { ...data, imageFile };
       await updateRecipe.mutateAsync(payload);
-      setSuccessMessage('Đã lưu thay đổi.');
-      router.refresh();
+
+      toast({ title: RECIPE_UPDATE_SUCCESS_MESSAGE });
+      setSuccessMessage(RECIPE_UPDATE_SUCCESS_MESSAGE);
+
+      const updatedSlug = data.slug?.trim() || slugify(data.title);
+      setTimeout(() => {
+        router.push(`/recipes/${updatedSlug}?updated=1`);
+        router.refresh();
+      }, 900);
     } catch (error) {
-      setFormError(getApiErrorMessage(error, 'Không thể lưu công thức. Vui lòng thử lại.'));
+      const message = getApiErrorMessage(
+        error,
+        'Không thể cập nhật công thức. Vui lòng thử lại.'
+      );
+      setFormError(message);
+      toast({
+        title: 'Không thể cập nhật công thức',
+        description: message,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -170,30 +205,55 @@ export function RecipeForm({
           {errors.description && <p className="form-error">{errors.description.message}</p>}
         </div>
 
+        <div>
+          <label htmlFor="slug" className="form-label">
+            Slug URL (để trống sẽ tự tạo từ tên công thức)
+          </label>
+          <input
+            id="slug"
+            type="text"
+            className={`input ${errors.slug ? 'input-error' : ''}`}
+            {...register('slug')}
+          />
+          {errors.slug && <p className="form-error">{errors.slug.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="instructions" className="form-label">
+            Hướng dẫn chung
+          </label>
+          <textarea
+            id="instructions"
+            className="textarea"
+            {...register('instructions')}
+          />
+        </div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="categoryId" className="form-label">
+            <label htmlFor="categoryName" className="form-label">
               Danh mục
             </label>
+            <input type="hidden" {...register('categoryId')} />
             <Controller
               control={control}
-              name="categoryId"
+              name="categoryName"
               render={({ field }) => (
                 <select
-                  id="categoryId"
-                  className={`select ${errors.categoryId ? 'input-error' : ''}`}
+                  id="categoryName"
+                  className={`select ${errors.categoryName ? 'input-error' : ''}`}
                   {...field}
                 >
                   <option value="">-- Chọn danh mục --</option>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <option key={category.id} value={category.name}>
                       {category.name}
                     </option>
                   ))}
                 </select>
               )}
             />
-            {errors.categoryId && <p className="form-error">{errors.categoryId.message}</p>}
+            {errors.categoryName && <p className="form-error">{errors.categoryName.message}</p>}
           </div>
 
           <div>
@@ -266,36 +326,12 @@ export function RecipeForm({
           </div>
         </div>
 
-        <div>
-          <label htmlFor="primaryImageUrl" className="form-label">
-            Ảnh chính (URL)
-          </label>
-          <input
-            id="primaryImageUrl"
-            type="text"
-            placeholder="https://... hoặc /images/..."
-            className={`input ${errors.primaryImageUrl ? 'input-error' : ''}`}
-            {...register('primaryImageUrl')}
-          />
-          {errors.primaryImageUrl && (
-            <p className="form-error">{errors.primaryImageUrl.message}</p>
-          )}
-          {/* TODO: thay input URL bằng upload ảnh khi backend hỗ trợ. */}
-        </div>
-
-        <div>
-          <label htmlFor="tags" className="form-label">
-            Tags (phân tách bằng dấu phẩy)
-          </label>
-          <input
-            id="tags"
-            type="text"
-            placeholder="ví dụ: món Việt, dễ làm, ăn sáng"
-            className={`input ${errors.tags ? 'input-error' : ''}`}
-            {...register('tags')}
-          />
-          {errors.tags && <p className="form-error">{errors.tags.message}</p>}
-        </div>
+        <FileUpload
+          currentFile={imageFile}
+          existingImageUrl={initialValues?.primaryImageUrl}
+          onFileChange={setImageFile}
+          disabled={submitting}
+        />
       </section>
 
       <section className="space-y-4">

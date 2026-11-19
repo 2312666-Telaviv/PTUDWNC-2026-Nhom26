@@ -1,34 +1,27 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getMockCategories } from '@/lib/mock/categories';
-import { recipeApi } from '@/lib/api/server';
+import { categoryApi, recipeApi } from '@/lib/api/server';
 import { RecipeCard } from '@/components/recipe/RecipeCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { slugify } from '@/lib/utils/slugify';
 
 export const revalidate = 3600;
 
-export async function generateStaticParams() {
-  return getMockCategories().map((category) => ({
-    slug: category.slug,
-  }));
-}
-
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-
-  const category = getMockCategories().find(
-    (item) => item.slug === slug || slugify(item.name) === slug
-  );
+  const categories = await categoryApi.getList();
+  const category = categories.find((item) => item.slug === slug);
 
   if (!category) {
     notFound();
   }
 
-  const result = await recipeApi.getList({ page: 1, pageSize: 1000 });
-  const recipes = result.items.filter(
-    (recipe) => recipe.categoryName === category.name || slugify(recipe.categoryName) === category.slug
-  );
+  const result = await recipeApi.getList({
+    page: 1,
+    pageSize: 100,
+    status: 'Published',
+    categoryName: category.name,
+  });
+  const recipes = result.items;
 
   return (
     <div className="min-h-screen bg-orange-50/30">

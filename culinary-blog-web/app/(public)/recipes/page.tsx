@@ -4,7 +4,7 @@ import { RecipeGrid } from '@/components/recipe/RecipeGrid';
 import { ViewModeToggle } from '@/components/recipe/ViewModeToggle';
 import { recipeApi } from '@/lib/api/server';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Công thức nấu ăn',
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RecipesPage() {
-  const result = await recipeApi.getList({ page: 1, pageSize: 12, categoryId: null });
+  const result = await recipeApi.getList({ page: 1, pageSize: 12, status: 'Published' });
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-12">
@@ -31,7 +31,7 @@ export default async function RecipesPage() {
       )}
 
       <Pagination
-        currentPage={Number(result.pageNumber) || 1}
+        currentPage={Number(result.page) || 1}
         totalPages={result.totalPages}
         getHref={(page) => (page === 1 ? '/recipes' : `/recipes/page/${page}`)}
       />

@@ -1,24 +1,27 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth-store'
-import { authService } from '@/lib/api/services'
-import { User } from '@/types/user'
+import { useAuthStore as useLegacyAuthStore } from '@/lib/stores/authStore'
+import { authService, recipeService } from '@/lib/api/services'
+import { logoutFromBackend } from '@/lib/api/auth-flow'
+import { getApiErrorMessage } from '@/lib/api/errorMessage'
+import { isApiError } from '@/lib/api/error'
+import type { ProfileDto, RecipeDto } from '@/types/api'
+import type { User } from '@/types/user'
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
-  const accessToken = useAuthStore((state) => state.accessToken)
-  const logout = useAuthStore((state) => state.logout)
 
-  const [name, setName] = useState('')
+  const [profile, setProfile] = useState<ProfileDto | null>(null)
+  const [myRecipes, setMyRecipes] = useState<RecipeDto[]>([])
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [bio, setBio] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -30,32 +33,55 @@ export default function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
 
-  const USE_MOCK_API =
-    process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' || process.env.USE_MOCK_API === 'true'
-
   useEffect(() => {
     if (status === 'loading') return
     if (!session?.user) {
       router.replace('/login?callbackUrl=/profile')
-      return
     }
   }, [session, status, router])
 
   useEffect(() => {
-    const source: User | null = user || null
-    if (source) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(source.name || '')
-      setEmail(source.email || '')
-      setPhone(source.phone || '')
-      setBio(source.bio || '')
-    } else if (session?.user) {
-      setName(session.user.name || '')
-      setEmail(session.user.email || '')
-      setPhone('')
-      setBio('')
+    if (status !== 'authenticated') return
+
+    let cancelled = false
+    authService
+      .getProfile()
+      .then((data) => {
+        if (cancelled) return
+        setProfile(data)
+        setEmail(data.email)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        if (isApiError(err) && err.statusCode === 401) {
+          void logoutFromBackend().then(() => router.replace('/login?callbackUrl=/profile'))
+          return
+        }
+        setError(getApiErrorMessage(err, 'Không tải được thông tin hồ sơ từ API.'))
+      })
+
+    return () => {
+      cancelled = true
     }
-  }, [user, session])
+  }, [status, router])
+
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    let cancelled = false
+    recipeService
+      .getMyRecipes()
+      .then((recipes) => {
+        if (!cancelled) setMyRecipes(recipes)
+      })
+      .catch(() => {
+        if (!cancelled) setMyRecipes([])
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [status])
 
   if (status === 'loading') {
     return (
@@ -77,88 +103,59 @@ export default function ProfilePage() {
 
   if (!session?.user) return null
 
-  const displayName = user?.name || session.user.name || session.user.email || ''
-  const displayEmail = session.user.email || user?.email || ''
+  const displayName =
+    profile?.userName || user?.name || session.user.name || profile?.email || session.user.email || ''
+  const displayEmail = profile?.email || session.user.email || user?.email || ''
   const displayRoles: string[] = session.user.roles || user?.roles || []
   const roleBadges = displayRoles.length ? displayRoles : ['User']
   const avatarUrl = user?.avatarUrl || session.user.image
   const initial = (displayName || displayEmail || '?').trim().charAt(0).toUpperCase()
 
-  const validate = (): boolean => {
-    if (!name.trim()) { setError('Họ tên không được để trống'); return false }
-    if (name.trim().length > 100) { setError('Họ tên không được vượt quá 100 ký tự'); return false }
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Email không hợp lệ')
-      return false
-    }
-    if (phone.trim()) {
-      const phoneRegex = /^[0-9+\-\s()]{7,20}$/
-      if (!phoneRegex.test(phone.trim())) { setError('Số điện thoại không hợp lệ'); return false }
-    }
-    if (bio.trim().length > 500) { setError('Giới thiệu ngắn không được vượt quá 500 ký tự'); return false }
-    return true
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
-    if (!validate()) return
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Email không hợp lệ')
+      return
+    }
+    if (!profile) {
+      setError('Thông tin hồ sơ chưa được tải xong. Vui lòng thử lại.')
+      return
+    }
+    if (email.trim() === profile.email) {
+      setSuccess('Email không có thay đổi.')
+      return
+    }
+
     setIsSaving(true)
     try {
-      const USE_MOCK_API =
-        process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' || process.env.USE_MOCK_API === 'true'
-      if (USE_MOCK_API || !accessToken) {
-        if (user) {
-          setUser({ ...user, name: name.trim(), email: email.trim(), phone: phone.trim() || null, bio: bio.trim() || null })
-        } else {
-          setUser({
-            id: session.user.id || '',
-            email: email.trim(),
-            name: name.trim(),
-            avatarUrl: avatarUrl || null,
-            roles: displayRoles,
-            phone: phone.trim() || null,
-            bio: bio.trim() || null,
-          })
-        }
-        setSuccess('Cập nhật thông tin thành công')
-        return
+      await authService.updateProfile({ email: email.trim() })
+      const refreshed = await authService.getProfile()
+      setProfile(refreshed)
+      setEmail(refreshed.email)
+
+      const updatedUser: User = {
+        id: refreshed.id,
+        email: refreshed.email,
+        name: refreshed.userName || user?.name || refreshed.email,
+        avatarUrl: user?.avatarUrl ?? null,
+        roles: displayRoles,
       }
-      if (email.trim() !== displayEmail) {
-        await authService.updateProfile({ email: email.trim() })
-      }
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041'
-      const res = await fetch(API_URL + '/api/v1/users/me', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim() || null, bio: bio.trim() || null }),
-      })
-      if (!res.ok) throw new Error('Cập nhật thất bại')
-      const data = (await res.json()) as { name?: string; phone?: string | null; bio?: string | null; avatarUrl?: string | null }
-      if (user) {
-        setUser({
-          ...user,
-          name: data.name ?? user.name,
-          email: email.trim(),
-          phone: data.phone ?? user.phone,
-          bio: data.bio ?? user.bio,
-          avatarUrl: data.avatarUrl ?? user.avatarUrl,
-        })
-      } else {
-        setUser({
-          id: session.user.id || '',
-          email: email.trim(),
-          name: data.name || name.trim(),
-          avatarUrl: data.avatarUrl ?? avatarUrl ?? null,
-          roles: displayRoles,
-          phone: data.phone ?? (phone.trim() || null),
-          bio: data.bio ?? (bio.trim() || null),
-        })
-      }
-      setSuccess('Cập nhật thông tin thành công')
+      setUser(updatedUser)
+      useLegacyAuthStore.getState().setUser(
+        {
+          id: refreshed.id,
+          email: refreshed.email,
+          userName: updatedUser.name,
+          name: updatedUser.name,
+        },
+        useAuthStore.getState().accessToken || ''
+      )
+      setSuccess('Cập nhật email thành công.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi cập nhật hồ sơ')
+      setError(getApiErrorMessage(err, 'Cập nhật thất bại. Vui lòng thử lại.'))
     } finally {
       setIsSaving(false)
     }
@@ -188,41 +185,25 @@ export default function ProfilePage() {
 
     setIsChangingPassword(true)
     try {
-      if (!USE_MOCK_API && accessToken) {
-        try {
-          await authService.changePassword({ email: displayEmail, currentPassword, newPassword })
-        } catch {
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041'
-          const res = await fetch(API_URL + '/api/v1/users/me/password', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
-            body: JSON.stringify({ currentPassword, newPassword }),
-          })
-          if (!res.ok) throw new Error('Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.')
-        }
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 600))
-      }
+      await authService.changePassword({
+        email: displayEmail,
+        currentPassword,
+        newPassword,
+      })
       setPasswordSuccess('Đổi mật khẩu thành công')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi đổi mật khẩu')
+      setPasswordError(getApiErrorMessage(err, 'Đổi mật khẩu thất bại. Vui lòng thử lại.'))
     } finally {
       setIsChangingPassword(false)
     }
   }
 
   const handleLogout = async () => {
-    try {
-      await authService.logout()
-    } catch {
-      // Bỏ qua lỗi khi gọi API logout
-    }
-    logout()
-    localStorage.removeItem('token')
-    window.location.href = '/login'
+    await logoutFromBackend()
+    router.replace('/login')
   }
 
   return (
@@ -231,15 +212,9 @@ export default function ProfilePage() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Hồ sơ cá nhân</h1>
           <p className="mt-1 text-sm text-gray-600">
-            Quản lý thông tin tài khoản và mật khẩu của bạn.
+            Thông tin tài khoản được lấy trực tiếp từ API backend.
           </p>
         </div>
-
-        {USE_MOCK_API && (
-          <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700">
-            <strong>Chế độ demo:</strong> Dữ liệu chỉ được lưu trong bộ nhớ tạm, chưa ghi vào database thật.
-          </div>
-        )}
 
         <section className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm">
           <div className="h-24 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-300 sm:h-28" />
@@ -283,28 +258,63 @@ export default function ProfilePage() {
           </div>
         </section>
 
+        <section className="mt-6 rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Công thức của tôi</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Tổng {myRecipes.length} công thức do chính bạn tạo, không gồm dữ liệu mẫu cộng đồng.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/recipes"
+              className="text-sm font-semibold text-orange-600 transition hover:text-orange-700"
+            >
+              Quản lý công thức →
+            </Link>
+          </div>
+
+          {myRecipes.length === 0 ? (
+            <p className="mt-4 rounded-xl bg-orange-50 px-4 py-3 text-sm text-gray-600">
+              Bạn chưa có công thức nào.{' '}
+              <Link href="/recipes/create" className="font-semibold text-orange-700 underline">
+                Đăng công thức đầu tiên
+              </Link>
+            </p>
+          ) : (
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {myRecipes.slice(0, 3).map((recipe) => (
+                <Link
+                  key={recipe.id}
+                  href={`/recipes/${recipe.slug}`}
+                  className="rounded-xl border border-orange-100 p-4 transition hover:border-orange-300 hover:bg-orange-50/60"
+                >
+                  <p className="line-clamp-2 font-semibold text-gray-900">{recipe.title}</p>
+                  <p className="mt-1 text-xs text-gray-500">{recipe.categoryName}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5 lg:items-start">
           <aside className="lg:col-span-2">
             <div className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900">Thông tin tài khoản</h2>
               <dl className="mt-4 space-y-4 text-sm">
                 <div>
-                  <dt className="text-gray-500">Họ tên</dt>
-                  <dd className="mt-1 font-medium text-gray-900">{displayName || 'Chưa cập nhật'}</dd>
+                  <dt className="text-gray-500">ID người dùng</dt>
+                  <dd className="mt-1 break-all font-mono text-xs text-gray-900">
+                    {profile?.id || session.user.id || 'Chưa cập nhật'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-gray-500">Tên đăng nhập</dt>
+                  <dd className="mt-1 font-medium text-gray-900">{profile?.userName || displayName}</dd>
                 </div>
                 <div>
                   <dt className="text-gray-500">Email</dt>
                   <dd className="mt-1 break-all font-medium text-gray-900">{displayEmail || 'Chưa cập nhật'}</dd>
-                </div>
-                <div>
-                  <dt className="text-gray-500">Số điện thoại</dt>
-                  <dd className="mt-1 font-medium text-gray-900">{phone.trim() || 'Chưa cập nhật'}</dd>
-                </div>
-                <div>
-                  <dt className="text-gray-500">Giới thiệu</dt>
-                  <dd className="mt-1 whitespace-pre-line text-gray-900">
-                    {bio.trim() || 'Chưa cập nhật'}
-                  </dd>
                 </div>
                 <div>
                   <dt className="text-gray-500">Vai trò</dt>
@@ -320,70 +330,24 @@ export default function ProfilePage() {
               className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm"
             >
               <div className="mb-5">
-                <h2 className="text-lg font-semibold text-gray-900">Thông tin cá nhân</h2>
-                <p className="mt-1 text-sm text-gray-600">Cập nhật họ tên và thông tin liên hệ của bạn.</p>
+                <h2 className="text-lg font-semibold text-gray-900">Cập nhật email</h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Backend hiện hỗ trợ cập nhật email qua PUT /api/v1/auth/profile.
+                </p>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="profile-name" className="form-label">
-                    Họ tên
-                  </label>
-                  <input
-                    id="profile-name"
-                    type="text"
-                    value={name}
-                    maxLength={100}
-                    onChange={(e) => setName(e.target.value)}
-                    className="input w-full"
-                    placeholder="Nhập họ tên"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="profile-email" className="form-label">
-                    Email
-                  </label>
-                  <input
-                    id="profile-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input w-full"
-                    placeholder="Nhập email"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Email được cập nhật qua API hồ sơ.</p>
-                </div>
-
-                <div>
-                  <label htmlFor="profile-phone" className="form-label">
-                    Số điện thoại
-                  </label>
-                  <input
-                    id="profile-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="input w-full"
-                    placeholder="Nhập số điện thoại"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="profile-bio" className="form-label">
-                    Giới thiệu bản thân
-                  </label>
-                  <textarea
-                    id="profile-bio"
-                    value={bio}
-                    maxLength={500}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="input w-full"
-                    rows={4}
-                    placeholder="Giới thiệu ngắn về bạn"
-                  />
-                  <p className="mt-1 text-right text-xs text-gray-500">{bio.length}/500</p>
-                </div>
+              <div>
+                <label htmlFor="profile-email" className="form-label">
+                  Email
+                </label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input w-full"
+                  placeholder="Nhập email"
+                />
               </div>
 
               {error && (
@@ -398,7 +362,7 @@ export default function ProfilePage() {
               )}
 
               <div className="mt-5 flex justify-end">
-                <button type="submit" disabled={isSaving} className="btn btn-primary px-6">
+                <button type="submit" disabled={isSaving || !profile} className="btn btn-primary px-6">
                   {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
               </div>

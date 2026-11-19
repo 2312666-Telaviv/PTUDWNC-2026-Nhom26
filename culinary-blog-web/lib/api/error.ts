@@ -46,6 +46,18 @@ export function extractAxiosErrorMessage(error: unknown): string {
       // Chuỗi lỗi đơn giản
       if (typeof data === 'string') return data;
 
+      // IdentityError[] do UserManager trả về (register/change-password)
+      if (Array.isArray(data)) {
+        const messages = data
+          .map((item) => {
+            const entry = item as { description?: string; message?: string } | string | null;
+            if (typeof entry === 'string') return entry;
+            return entry?.description || entry?.message || '';
+          })
+          .filter(Boolean);
+        if (messages.length > 0) return messages.join('; ');
+      }
+
       // ASP.NET Core ProblemDetails / ValidationProblemDetails
       if (data.title) return data.title;
       if (data.message) return data.message;
@@ -53,9 +65,12 @@ export function extractAxiosErrorMessage(error: unknown): string {
 
       // Lỗi validation từ ASP.NET Core (errors: { field: [...] })
       if (data.errors && typeof data.errors === 'object') {
-        const messages = Object.entries(data.errors).map(([key, values]) => {
+        const entries: Array<[string, unknown]> = Array.isArray(data.errors)
+          ? (data.errors as unknown[]).map((item: unknown, index: number) => [String(index), item] as [string, unknown])
+          : Object.entries(data.errors as Record<string, unknown>);
+        const messages = entries.map(([key, values]) => {
           const arr = Array.isArray(values) ? values : [String(values)];
-          return `${key}: ${arr.join(', ')}`;
+          return `${key}: ${arr.map(String).join(', ')}`;
         });
         if (messages.length > 0) return messages.join('; ');
       }
@@ -94,4 +109,29 @@ export function extractAxiosStatusCode(error: unknown): number {
   }
 
   return 500;
+}
+
+export function extractAxiosValidationErrors(error: unknown): Record<string, string[]> | undefined {
+  if (isApiError(error)) return error.errors;
+
+  if (error && typeof error === 'object' && 'response' in error) {
+    const axiosError = error as {
+      response?: {
+        data?: {
+          errors?: Record<string, unknown>;
+        };
+      };
+    };
+    const errors = axiosError.response?.data?.errors;
+    if (errors && typeof errors === 'object') {
+      return Object.fromEntries(
+        Object.entries(errors).map(([key, value]) => [
+          key,
+          Array.isArray(value) ? value.map(String) : [String(value)],
+        ])
+      );
+    }
+  }
+
+  return undefined;
 }

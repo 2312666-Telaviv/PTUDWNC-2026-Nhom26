@@ -4,17 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
-import { RegisterRequest } from '@/types/api';
+import { authService } from '@/lib/api/services';
+import { loginWithBackend } from '@/lib/api/auth-flow';
+import { getApiErrorMessage } from '@/lib/api/errorMessage';
 
-/**
- * Form đăng ký của blog app, dùng auth-store để lưu phiên đăng nhập sau khi đăng ký.
- * Nhánh Linh: gọi API thật (POST /api/v1/auth/register).
- * Nhánh Hương: giao diện mock + trạng thái đăng ký thành công.
- * → Giữ cả hai logic: gọi API thật, hiển thị trạng thái đã đăng nhập nếu user có.
- */
 export function AuthRegisterForm() {
   const router = useRouter();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,129 +18,68 @@ export function AuthRegisterForm() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const setLoading = useAuthStore((state) => state.setLoading);
-  const setError = useAuthStore((state) => state.setError);
-  const clearError = useAuthStore((state) => state.clearError);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setServerError(null);
     setSuccess(null);
 
-    if (!name.trim()) {
-      setError('Vui lòng nhập họ tên.');
-      return;
-    }
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Email không hợp lệ.');
+      setServerError('Email không hợp lệ.');
       return;
     }
-
     if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      setServerError('Mật khẩu phải có ít nhất 6 ký tự.');
       return;
     }
-
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.');
+      setServerError('Mật khẩu xác nhận không khớp.');
       return;
     }
 
     setIsSubmitting(true);
-    setLoading(true);
-    clearError();
-
-    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041').replace(/\/+$/, '');
-    const registerData: RegisterRequest = {
-      email: email.trim(),
-      password,
-      name: name.trim(),
-    };
 
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registerData),
-      });
+      await authService.register({ email: email.trim(), password });
 
-      if (!response.ok) {
-        let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.';
-        try {
-          const errorData = await response.json();
-          if (typeof errorData === 'object' && errorData !== null) {
-            const errors = (errorData as { errors?: unknown[] })?.errors;
-            if (Array.isArray(errors)) {
-              const messages = errors.map((e) => {
-                const item = e as { description?: string; message?: string } | null | undefined;
-                return String(item?.description || item?.message || item);
-              }).join('; ');
-              if (messages) {
-                errorMessage = messages;
-              } else if (errorData.title) {
-                errorMessage = errorData.title;
-              } else if (errorData.detail) {
-                errorMessage = errorData.detail;
-              }
-            } else if (errorData.message) {
-              errorMessage = errorData.message;
-            }
-          }
-        } catch {
-          // Không parse được JSON, dùng thông báo mặc định
-        }
-        setServerError(errorMessage);
-        setError(errorMessage);
-        return;
+      try {
+        await loginWithBackend(email, password);
+        setSuccess('Đăng ký và đăng nhập thành công!');
+        window.setTimeout(() => router.push('/profile'), 1200);
+      } catch {
+        setSuccess('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
+        window.setTimeout(() => router.push('/login'), 1500);
       }
-
-      setSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
-      setIsSubmitting(false);
-      setLoading(false);
-
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra backend.';
-      setServerError(message);
-      setError(message);
+      setServerError(getApiErrorMessage(err, 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra backend.'));
     } finally {
       setIsSubmitting(false);
-      setLoading(false);
     }
   };
 
-  // Hiển thị trạng thái đã đăng nhập (từ nhánh Hương)
   if (user) {
     return (
       <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-        <p className="font-semibold">Đăng ký thành công, chào mừng {user.name}.</p>
+        <p className="font-semibold">Bạn đã đăng nhập với tên {user.name}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/blog" className="btn btn-primary">
-            Xem bài viết
+          <Link href="/profile" className="btn btn-primary">
+            Xem hồ sơ
           </Link>
-          <Link href="/blog/new" className="btn btn-outline">
-            Viết bài viết đầu tiên
+          <Link href="/blog" className="btn btn-outline">
+            Xem bài viết
           </Link>
         </div>
       </div>
     );
   }
 
-  // Hiển thị thông báo thành công (từ nhánh Linh)
   if (success) {
     return (
       <div className="rounded-md border border-green-200 bg-green-50 p-6 text-center">
         <p className="font-semibold text-green-800">{success}</p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <Link href="/login" className="btn btn-primary">
-            Đăng nhập ngay
+            Đăng nhập
           </Link>
         </div>
       </div>
@@ -155,34 +89,10 @@ export function AuthRegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {serverError && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {serverError}
         </div>
       )}
-      {error && !serverError && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
-      <div>
-        <label htmlFor="register-name" className="form-label">
-          Họ tên
-        </label>
-        <input
-          id="register-name"
-          type="text"
-          value={name}
-          onChange={(event) => {
-            setName(event.target.value);
-            if (serverError) setServerError(null);
-            if (error) clearError();
-          }}
-          placeholder="Nguyễn Văn A"
-          className="input"
-          autoComplete="name"
-        />
-      </div>
 
       <div>
         <label htmlFor="register-email" className="form-label">
@@ -195,12 +105,12 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setEmail(event.target.value);
             if (serverError) setServerError(null);
-            if (error) clearError();
           }}
           placeholder="ban@example.com"
           className="input"
           autoComplete="email"
         />
+        <p className="mt-1 text-xs text-gray-500">Email cũng là tên đăng nhập của bạn.</p>
       </div>
 
       <div>
@@ -214,7 +124,6 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setPassword(event.target.value);
             if (serverError) setServerError(null);
-            if (error) clearError();
           }}
           placeholder="Tối thiểu 6 ký tự"
           className="input"
@@ -233,7 +142,6 @@ export function AuthRegisterForm() {
           onChange={(event) => {
             setConfirmPassword(event.target.value);
             if (serverError) setServerError(null);
-            if (error) clearError();
           }}
           placeholder="Nhập lại mật khẩu"
           className="input"
@@ -250,10 +158,6 @@ export function AuthRegisterForm() {
         <Link href="/login" className="font-medium text-orange-600 hover:underline">
           Đăng nhập
         </Link>
-      </p>
-
-      <p className="text-center text-xs text-gray-400">
-        Đây là giao diện tĩnh, dữ liệu đăng ký chỉ được lưu trong localStorage của trình duyệt.
       </p>
     </form>
   );
