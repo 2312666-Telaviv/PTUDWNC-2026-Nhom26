@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Hook sử dụng toast notification (thông báo trên màn hình).
  * Dùng Radix UI Toast + zustand (hoặc context) để quản lý trạng thái.
@@ -32,11 +34,7 @@ type ToastAction = {
 };
 
 type Toast = {
-<<<<<<< HEAD
-  id: string;
-=======
   id?: string;
->>>>>>> origin/2312665-KieuHaLinh
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastAction;
@@ -104,12 +102,8 @@ function createToast() {
 export function useToast() {
   const [toasts, setToasts] = React.useState<Toast[]>(memoryState);
 
-<<<<<<< HEAD
-   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-=======
   React.useEffect(() => {
->>>>>>> origin/2312665-KieuHaLinh
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToasts(memoryState);
   }, []);
 

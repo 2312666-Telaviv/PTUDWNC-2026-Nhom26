@@ -4,7 +4,6 @@ using CulinaryBlog.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-<<<<<<< HEAD
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace CulinaryBlog.API.Controllers;
@@ -12,18 +11,6 @@ namespace CulinaryBlog.API.Controllers;
 /// <summary>
 /// Đăng ký, đăng nhập và quản lý role người dùng.
 /// </summary>
-=======
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Asp.Versioning;
-
-namespace CulinaryBlog.API.Controllers;
-
-[ApiVersion("1.0")]
-[Route("api/[controller]")]
->>>>>>> origin/2312665-KieuHaLinh
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -99,18 +86,6 @@ public class AuthController : ControllerBase
         });
     }
 
-<<<<<<< HEAD
-    /// <summary>
-    /// Gán role cho người dùng (chỉ Admin).
-    /// </summary>
-    [HttpPost("assign-role")]
-    [Authorize(Policy = "AdminOnly")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-=======
     [HttpPost("change-password")]
     [Authorize]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
@@ -201,9 +176,16 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Đăng xuất thành công!" });
     }
 
+    /// <summary>
+    /// Gán role cho người dùng (chỉ Admin).
+    /// </summary>
     [HttpPost("assign-role")]
-    [Authorize(Roles = "Admin")]
->>>>>>> origin/2312665-KieuHaLinh
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
@@ -245,8 +227,6 @@ public class AuthController : ControllerBase
         /// <summary>Tên role cần gán (Admin hoặc User).</summary>
         public string Role { get; set; } = string.Empty;
     }
-<<<<<<< HEAD
-=======
 
     public class ResetPasswordDto
     {
@@ -254,5 +234,4 @@ public class AuthController : ControllerBase
         public string Token { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
     }
->>>>>>> origin/2312665-KieuHaLinh
 }

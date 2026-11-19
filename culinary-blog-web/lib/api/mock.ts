@@ -6,7 +6,8 @@ const base: RecipeDto[] = [
     description: 'Nước dùng ninh xương trong veo, thơm mùi quế hồi, bánh phở mềm dai.',
     primaryImageUrl: 'https://picsum.photos/seed/pho/800/450',
     prepTimeMinutes: 30, cookTimeMinutes: 180, servings: 4, difficulty: 'Hard',
-    categoryName: 'Món chính', authorName: 'Admin', createdAt: '2026-09-01T00:00:00Z',
+    categoryName: 'Món chính', authorName: 'Admin', authorId: 'admin', createdAt: '2026-09-01T00:00:00Z',
+    preparationTime: 30, cookingTime: 180, status: 'Published',
     likeCount: 12, isLiked: false,
     ingredients: [
       { id: 'i1', name: 'Xương bò', quantity: 1, unit: 'kg' },
@@ -23,7 +24,8 @@ const base: RecipeDto[] = [
     description: 'Thịt heo nướng thơm lừng kẹp bánh mì giòn, đồ chua và rau thơm.',
     primaryImageUrl: 'https://picsum.photos/seed/banhmi/800/450',
     prepTimeMinutes: 20, cookTimeMinutes: 25, servings: 2, difficulty: 'Easy',
-    categoryName: 'Ăn nhanh', authorName: 'Admin', createdAt: '2026-09-02T00:00:00Z',
+    categoryName: 'Ăn nhanh', authorName: 'Admin', authorId: 'admin', createdAt: '2026-09-02T00:00:00Z',
+    preparationTime: 20, cookingTime: 25, status: 'Published',
     likeCount: 5, isLiked: false,
     ingredients: [
       { id: 'i1', name: 'Thịt heo', quantity: 300, unit: 'g' },
@@ -39,7 +41,8 @@ const base: RecipeDto[] = [
     description: 'Vị chua thanh của me, thơm và cà chua, ăn kèm cơm trắng rất hợp.',
     primaryImageUrl: 'https://picsum.photos/seed/canhchua/800/450',
     prepTimeMinutes: 15, cookTimeMinutes: 20, servings: 4, difficulty: 'Medium',
-    categoryName: 'Món canh', authorName: 'Admin', createdAt: '2026-09-03T00:00:00Z',
+    categoryName: 'Món canh', authorName: 'Admin', authorId: 'admin', createdAt: '2026-09-03T00:00:00Z',
+    preparationTime: 15, cookingTime: 20, status: 'Published',
     likeCount: 8, isLiked: false,
     ingredients: [
       { id: 'i1', name: 'Cá lóc', quantity: 500, unit: 'g' },

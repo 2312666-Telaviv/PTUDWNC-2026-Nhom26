@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth-store'
+import { authService } from '@/lib/api/services'
 import { User } from '@/types/user'
 
 export default function ProfilePage() {
@@ -12,8 +13,10 @@ export default function ProfilePage() {
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const accessToken = useAuthStore((state) => state.accessToken)
+  const logout = useAuthStore((state) => state.logout)
 
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [bio, setBio] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -43,10 +46,12 @@ export default function ProfilePage() {
     if (source) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(source.name || '')
+      setEmail(source.email || '')
       setPhone(source.phone || '')
       setBio(source.bio || '')
     } else if (session?.user) {
       setName(session.user.name || '')
+      setEmail(session.user.email || '')
       setPhone('')
       setBio('')
     }
@@ -82,6 +87,10 @@ export default function ProfilePage() {
   const validate = (): boolean => {
     if (!name.trim()) { setError('Họ tên không được để trống'); return false }
     if (name.trim().length > 100) { setError('Họ tên không được vượt quá 100 ký tự'); return false }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Email không hợp lệ')
+      return false
+    }
     if (phone.trim()) {
       const phoneRegex = /^[0-9+\-\s()]{7,20}$/
       if (!phoneRegex.test(phone.trim())) { setError('Số điện thoại không hợp lệ'); return false }
@@ -101,11 +110,11 @@ export default function ProfilePage() {
         process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' || process.env.USE_MOCK_API === 'true'
       if (USE_MOCK_API || !accessToken) {
         if (user) {
-          setUser({ ...user, name: name.trim(), phone: phone.trim() || null, bio: bio.trim() || null })
+          setUser({ ...user, name: name.trim(), email: email.trim(), phone: phone.trim() || null, bio: bio.trim() || null })
         } else {
           setUser({
             id: session.user.id || '',
-            email: displayEmail,
+            email: email.trim(),
             name: name.trim(),
             avatarUrl: avatarUrl || null,
             roles: displayRoles,
@@ -115,6 +124,9 @@ export default function ProfilePage() {
         }
         setSuccess('Cập nhật thông tin thành công')
         return
+      }
+      if (email.trim() !== displayEmail) {
+        await authService.updateProfile({ email: email.trim() })
       }
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041'
       const res = await fetch(API_URL + '/api/v1/users/me', {
@@ -128,6 +140,7 @@ export default function ProfilePage() {
         setUser({
           ...user,
           name: data.name ?? user.name,
+          email: email.trim(),
           phone: data.phone ?? user.phone,
           bio: data.bio ?? user.bio,
           avatarUrl: data.avatarUrl ?? user.avatarUrl,
@@ -135,7 +148,7 @@ export default function ProfilePage() {
       } else {
         setUser({
           id: session.user.id || '',
-          email: displayEmail,
+          email: email.trim(),
           name: data.name || name.trim(),
           avatarUrl: data.avatarUrl ?? avatarUrl ?? null,
           roles: displayRoles,
@@ -176,13 +189,17 @@ export default function ProfilePage() {
     setIsChangingPassword(true)
     try {
       if (!USE_MOCK_API && accessToken) {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041'
-        const res = await fetch(API_URL + '/api/v1/users/me/password', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
-          body: JSON.stringify({ currentPassword, newPassword }),
-        })
-        if (!res.ok) throw new Error('Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.')
+        try {
+          await authService.changePassword({ email: displayEmail, currentPassword, newPassword })
+        } catch {
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041'
+          const res = await fetch(API_URL + '/api/v1/users/me/password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+            body: JSON.stringify({ currentPassword, newPassword }),
+          })
+          if (!res.ok) throw new Error('Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.')
+        }
       } else {
         await new Promise((resolve) => setTimeout(resolve, 600))
       }
@@ -195,6 +212,17 @@ export default function ProfilePage() {
     } finally {
       setIsChangingPassword(false)
     }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // Bỏ qua lỗi khi gọi API logout
+    }
+    logout()
+    localStorage.removeItem('token')
+    window.location.href = '/login'
   }
 
   return (
@@ -319,11 +347,12 @@ export default function ProfilePage() {
                   <input
                     id="profile-email"
                     type="email"
-                    value={displayEmail}
-                    readOnly
-                    className="input w-full cursor-not-allowed bg-gray-50 text-gray-500"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input w-full"
+                    placeholder="Nhập email"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Email không thể thay đổi.</p>
+                  <p className="mt-1 text-xs text-gray-500">Email được cập nhật qua API hồ sơ.</p>
                 </div>
 
                 <div>
@@ -450,6 +479,12 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+
+            <div className="flex justify-end">
+              <button type="button" onClick={handleLogout} className="btn btn-outline px-6">
+                Đăng xuất
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CulinaryBlog.Application\CulinaryBlog.Application.csproj" />
     <ProjectReference Include="..\CulinaryBlog.Domain\CulinaryBlog.Domain.csproj" />
   </ItemGroup>

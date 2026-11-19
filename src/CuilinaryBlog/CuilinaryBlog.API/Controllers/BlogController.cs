@@ -1,18 +1,12 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace CulinaryBlog.API.Controllers;
 
-<<<<<<< HEAD
 /// <summary>
 /// Endpoint mẫu kiểm tra truy cập công khai và bảo vệ bằng JWT.
 /// </summary>
-=======
-[ApiVersion("1.0")]
-[Route("api/[controller]")]
->>>>>>> origin/2312665-KieuHaLinh
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]

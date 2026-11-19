@@ -70,6 +70,8 @@ function toListDto(recipe: RecipeDto): RecipeListDto {
     difficulty: recipe.difficulty,
     categoryName: recipe.categoryName,
     authorName: recipe.authorName,
+    authorId: recipe.authorId,
+    status: recipe.status,
     primaryImageUrl: recipe.primaryImageUrl,
     viewCount: recipe.viewCount,
     createdAt: recipe.createdAt,

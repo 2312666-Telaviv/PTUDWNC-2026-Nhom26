@@ -1,96 +1,86 @@
-import axios from 'axios';
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getSession } from 'next-auth/react';
 
-<<<<<<< HEAD
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5041').replace(/\/$/, '');
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041';
+const normalizedBaseUrl = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+const baseURL = `${normalizedBaseUrl}/api/v1`;
 
-const apiClient = axios.create({
-  baseURL: `${apiBaseUrl}/api/v1`,
-  timeout: 10000,
-});
+interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
-apiClient.interceptors.request.use(
-  async (config) => {
-    try {
-      if (typeof window !== 'undefined') {
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem('auth-storage');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+    return parsed?.state?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function applyAuth(config: InternalAxiosRequestConfig) {
+  if (typeof window !== 'undefined') {
+    let token = getStoredToken();
+
+    if (!token) {
+      try {
         const session = await getSession();
-        if (session?.user?.accessToken) {
-          config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${session.user.accessToken}`;
-        }
+        token = session?.user?.accessToken ?? null;
+      } catch {
+        token = null;
       }
-    } catch (error) {
-      // Bỏ qua lỗi lấy session
-      console.error('Lỗi khi lấy session:', error);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (typeof window !== 'undefined' && error.response?.status === 401) {
-      // Theo yêu cầu: điều hướng cứng về trang đăng nhập khi gặp lỗi 401
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+  }
+
+  return config;
+}
+
+function redirectOnUnauthorized(error: AxiosError) {
+  const originalRequest = error.config as RetryableRequestConfig | undefined;
+
+  if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    originalRequest._retry = true;
+    if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
-=======
-// Tạo Axios instance với baseURL trỏ tới .NET API của bạn (chỉnh lại port nếu cần)
-export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:5001/api',
+  }
+
+  return Promise.reject(error);
+}
+
+const sharedConfig = {
+  baseURL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+};
+
+export const axiosInstance = axios.create(sharedConfig);
+
+axiosInstance.interceptors.request.use(async (config) => {
+  if (typeof config.url === 'string' && config.url.startsWith('/api/v1/')) {
+    config.url = config.url.slice('/api/v1'.length);
+  }
+  return applyAuth(config);
 });
 
-// 1. Request Interceptor: Tự động đính kèm JWT token từ Auth.js Session vào Header
-axiosInstance.interceptors.request.use(
-  async (config) => {
-    // Lấy session hiện tại ở phía client
-    const session = await getSession();
-    
-    // Nếu có token (hoặc accessToken từ backend trả về), gắn vào Authorization Header
-    if (session && (session as any).accessToken) {
-      config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
-    }
-    
-    return config;
-  },
-  (error) => {
->>>>>>> origin/2312665-KieuHaLinh
-    return Promise.reject(error);
-  }
-);
+axiosInstance.interceptors.response.use((response) => response, redirectOnUnauthorized);
 
-<<<<<<< HEAD
+const apiClient = axios.create(sharedConfig);
+
+apiClient.interceptors.request.use(applyAuth);
+apiClient.interceptors.response.use((response) => response, redirectOnUnauthorized);
+
 export default apiClient;
-=======
-// 2. Response Interceptor: Xử lý lỗi trả về từ API, đặc biệt là mã 401 (Unauthorized)
-axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const originalRequest = error.config;
-
-    // Nếu gặp lỗi 401 (Hết hạn token hoặc chưa đăng nhập) và chưa thử lại lần nào
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Có thể thực hiện gọi API refresh token hoặc điều hướng về trang đăng nhập
-        // Ở mức cơ bản, chúng ta chuyển hướng user về trang login
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
->>>>>>> origin/2312665-KieuHaLinh

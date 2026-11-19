@@ -1,96 +1,80 @@
-<<<<<<< HEAD
+export type RecipeStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
+
 export interface RecipeIngredientDto {
-  id: number;
+  id?: number | string | any;
   name: string;
-  quantity: string;
+  quantity: string | number | any;
   unit: string;
+  notes?: string;
 }
 
 export interface RecipeStepDto {
-  id: number;
-  stepNumber: number;
-  title: string;
+  id?: number | string | any;
+  stepNumber?: number;
+  title?: string;
   description: string;
+  durationMinutes?: number;
   imageUrl?: string | null;
 }
 
-// Trạng thái công thức theo luồng: Draft -> Published -> Archived/Deleted.
-// Deleted là xóa mềm: bản ghi vẫn còn nhưng không hiển thị công khai.
-export type RecipeStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
-
-// Payload dùng chung cho form tạo/cập nhật công thức.
-// categoryId dùng UUID của CategoryDto (khớp schema validate phía client/server).
-export interface RecipeRequest {
-  title: string;
-  description: string;
-  categoryId: string;
-=======
 export interface RecipeListDto {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  primaryImageUrl?: string;
->>>>>>> origin/2312665-KieuHaLinh
-  prepTimeMinutes: number;
-  cookTimeMinutes: number;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-<<<<<<< HEAD
-  primaryImageUrl?: string;
-  tags?: string;
-  ingredients: Array<{
-    name: string;
-    quantity: string;
-    unit: string;
-  }>;
-  steps: Array<{
-    title?: string;
-    description: string;
-    durationMinutes?: number;
-  }>;
-  status?: 'Draft' | 'Published';
-}
-
-export interface RecipeDto {
-  id: number;
+  id?: number | string | any;
   title: string;
   slug: string;
   description: string;
-  preparationTime: number;
-  cookingTime: number;
-  totalTime: number;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  categoryId: number;
-  categoryName: string;
+  imageUrl?: string;
+  primaryImageUrl?: string;
+  status: RecipeStatus;
   authorId: string;
   authorName: string;
-  primaryImageUrl: string;
-  status: RecipeStatus;
-  viewCount: number;
+  createdAt: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  prepTimeMinutes?: number;
+  cookTimeMinutes?: number;
+  totalTime?: number;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  categoryName: string;
+  viewCount?: number;
+}
+
+export interface RecipeDto extends RecipeListDto {
+  preparationTime: number;
+  cookingTime: number;
+  categoryId?: number | string | any;
+  instructions?: string;
   likeCount: number;
   isLiked: boolean;
-  createdAt: string;
-  updatedAt: string;
   ingredients: RecipeIngredientDto[];
   steps: RecipeStepDto[];
   tags?: string[];
 }
 
-export interface RecipeListDto {
-  id: number;
+export interface RecipeRequest {
   title: string;
-  slug: string;
   description: string;
-  totalTime: number;
+  categoryId: string;
+  prepTimeMinutes: number;
+  cookTimeMinutes: number;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  categoryName: string;
-  authorName?: string;
-  primaryImageUrl: string;
-  viewCount: number;
-  createdAt: string;
+  primaryImageUrl?: string;
+  tags?: string;
+  status?: RecipeStatus;
+  ingredients: RecipeIngredientDto[];
+  steps: RecipeStepDto[];
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber?: number | string | any;
+  page?: number | string | any;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
 }
 
 export interface CommentDto {
@@ -103,76 +87,8 @@ export interface CommentDto {
   updatedAt: string;
   parentId?: number | null;
   replies?: CommentDto[];
-=======
-  categoryName: string;
-  authorName: string;
-  createdAt: string;
 }
 
-export interface RecipeStepDto {
-  id: string;
-  stepNumber: number;
-  description: string;
-  durationMinutes?: number;
-}
-
-export interface RecipeIngredientDto {
-  id: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  notes?: string;
-}
-
-export interface RecipeDto extends RecipeListDto {
-  instructions?: string;
-  steps: RecipeStepDto[];
-  ingredients: RecipeIngredientDto[];
-  likeCount: number;
-  isLiked: boolean;
->>>>>>> origin/2312665-KieuHaLinh
-}
-
-export interface PaginatedResult<T> {
-  items: T[];
-  totalCount: number;
-<<<<<<< HEAD
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-=======
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-/* ===== Auth Types ===== */
-
-export interface AuthTokens {
-  token: string;
-  expiration: string;
-}
-
-export interface ProfileDto {
-  id: string;
-  email: string;
-  userName: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
->>>>>>> origin/2312665-KieuHaLinh
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-<<<<<<< HEAD
 export interface LoginResponseDto {
   accessToken: string;
   expiration: string;
@@ -180,12 +96,6 @@ export interface LoginResponseDto {
   email: string;
   name?: string | null;
   roles: string[];
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  name?: string;
 }
 
 export interface AssignRoleRequest {
@@ -205,13 +115,36 @@ export interface ApiProblemDetails {
 export interface RecipeFilters {
   page?: number;
   pageSize?: number;
-  categoryId?: number | null;
+  categoryId?: number | string | null;
   keyword?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   minTotalTime?: number;
   maxTotalTime?: number;
 }
-=======
+
+export interface AuthTokens {
+  token: string;
+  expiration: string;
+}
+
+export interface ProfileDto {
+  id: string;
+  email: string;
+  userName: string;
+  name?: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
 export interface ChangePasswordRequest {
   email: string;
   currentPassword: string;
@@ -247,4 +180,48 @@ export interface AuthState {
   login: (token: string, user: ProfileDto) => void;
   logout: () => void;
 }
->>>>>>> origin/2312665-KieuHaLinh
+
+export interface RecipeFormValues {
+  title: string;
+  description: string;
+  slug: string;
+  prepTimeMinutes: number;
+  cookTimeMinutes: number;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  categoryName: string;
+  instructions?: string;
+}
+
+export interface CreateRecipeRequest extends RecipeFormValues {
+  status?: RecipeStatus;
+  imageFile?: File | null;
+}
+
+export interface UpdateRecipeRequest extends RecipeFormValues {
+  imageFile?: File | null;
+}
+
+export interface CreateRecipeResponse {
+  message: string;
+  recipeId: number;
+  status?: RecipeStatus;
+  imageUrl?: string;
+}
+
+export interface UpdateRecipeResponse {
+  message: string;
+  recipeId: number;
+  imageUrl?: string;
+}
+
+export interface ChangeStatusResponse {
+  message: string;
+  recipeId: number;
+  status: RecipeStatus;
+}
+
+export interface StatusTransitions {
+  currentStatus: RecipeStatus;
+  allowedStatuses: RecipeStatus[];
+}

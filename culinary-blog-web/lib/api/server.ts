@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 import { notFound } from 'next/navigation';
-import { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
-import { CategoryDto } from '@/types/category';
+import type { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
+import type { CategoryDto } from '@/types/category';
 import { getMockCategories } from '@/lib/mock/categories';
 import {
   getPublishedRecipeBySlug,
@@ -17,14 +16,14 @@ const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
 interface GetListParams {
   page?: number;
   pageSize?: number;
-  categoryId?: number | null;
+  categoryId?: number | string | null;
 }
 
 interface GetRecipeOptions {
   includeUnpublished?: boolean;
 }
 
-async function fetchFromApi<T>(endpoint: string): Promise<T> {
+async function fetchFromApi<T>(endpoint: string, revalidate?: number): Promise<T> {
   if (!API_URL) {
     throw new Error('API_URL không được cấu hình');
   }
@@ -33,7 +32,9 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
     headers: {
       'Content-Type': 'application/json',
     },
-    cache: 'no-store',
+    ...(revalidate === undefined
+      ? { cache: 'no-store' as const }
+      : { next: { revalidate } }),
   });
 
   if (!response.ok) {
@@ -43,13 +44,22 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function normalizeCategoryId(categoryId?: number | string | null): number | null {
+  if (categoryId === null || categoryId === undefined || categoryId === '') {
+    return null;
+  }
+
+  const parsed = typeof categoryId === 'number' ? categoryId : Number(categoryId);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function getMockList(params: GetListParams = {}): PaginatedResult<RecipeListDto> {
   const page = params.page ?? 1;
   const pageSize = params.pageSize ?? 12;
 
   // listPublishedRecipes đã lọc status = Published nên Draft/Archived/Deleted
   // không bao giờ lộ ra các trang công khai.
-  const recipes = listPublishedRecipes({ categoryId: params.categoryId });
+  const recipes = listPublishedRecipes({ categoryId: normalizeCategoryId(params.categoryId) });
   return paginateRecipeList(recipes, page, pageSize);
 }
 
@@ -57,7 +67,7 @@ export const recipeApi = {
   async getList(params: GetListParams = {}): Promise<PaginatedResult<RecipeListDto>> {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 12;
-    const categoryId = params.categoryId;
+    const categoryId = normalizeCategoryId(params.categoryId);
 
     if (USE_MOCK_API) {
       return getMockList({ page, pageSize, categoryId });
@@ -67,12 +77,14 @@ export const recipeApi = {
       const queryParams = new URLSearchParams();
       queryParams.append('pageNumber', page.toString());
       queryParams.append('pageSize', pageSize.toString());
-      if (categoryId) {
+      if (categoryId !== null) {
         queryParams.append('categoryId', categoryId.toString());
       }
 
+      // Nhánh client dùng revalidate 3600 cho danh sách; giữ lại ở đây.
       const data = await fetchFromApi<PaginatedResult<RecipeListDto>>(
-        `/recipes?${queryParams.toString()}`
+        `/recipes?${queryParams.toString()}`,
+        3600
       );
       return data;
     } catch (error) {
@@ -154,43 +166,3 @@ export const categoryApi = {
     return getMockCategories();
   },
 };
-=======
-import type { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
-import { mockRecipes } from './mock';
-
-const API_URL = process.env.API_URL; // không đặt biến này => dùng mock
-
-async function get<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, init);
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-type ListParams = { page: number; pageSize: number; categoryId?: string };
-
-export const recipeApi = {
-  async getList(p: ListParams): Promise<PaginatedResult<RecipeListDto>> {
-    if (!API_URL) {
-      const start = (p.page - 1) * p.pageSize;
-      const items = mockRecipes.slice(start, start + p.pageSize);
-      const totalPages = Math.ceil(mockRecipes.length / p.pageSize);
-      return {
-        items, totalCount: mockRecipes.length, page: p.page, pageSize: p.pageSize,
-        totalPages, hasNextPage: p.page < totalPages, hasPreviousPage: p.page > 1,
-      };
-    }
-    const qs = new URLSearchParams({ page: String(p.page), pageSize: String(p.pageSize) });
-    if (p.categoryId) qs.set('categoryId', p.categoryId);
-    return get(`/api/v1/recipes?${qs}`, { next: { revalidate: 3600 } });
-  },
-
-  async getBySlug(slug: string): Promise<RecipeDto> {
-    if (!API_URL) {
-      const found = mockRecipes.find((r) => r.slug === slug);
-      if (!found) throw new Error('Not found');
-      return found;
-    }
-    return get(`/api/v1/recipes/${slug}`, { cache: 'no-store' });
-  },
-};
->>>>>>> origin/2312665-KieuHaLinh

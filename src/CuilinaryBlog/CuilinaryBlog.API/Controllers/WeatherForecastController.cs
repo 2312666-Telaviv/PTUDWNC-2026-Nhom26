@@ -1,17 +1,12 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace CuilinaryBlog.API.Controllers
 {
-<<<<<<< HEAD
     /// <summary>
     /// Endpoint mẫu thời tiết (công khai).
     /// </summary>
-=======
-    [ApiVersion("1.0")]
->>>>>>> origin/2312665-KieuHaLinh
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]

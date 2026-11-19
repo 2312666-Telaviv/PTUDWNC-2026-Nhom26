@@ -11,10 +11,15 @@ namespace CulinaryBlog.Infrastructure.Persistence
         }
 
         public DbSet<Recipe> Recipes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-       
+
+            // Giá trị mặc định khi thêm bản ghi cũ / chưa set trạng thái
+            builder.Entity<Recipe>()
+                .Property(r => r.Status)
+                .HasDefaultValue("Draft");
         }
     }
 }

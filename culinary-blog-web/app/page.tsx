@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -35,9 +34,9 @@ export default async function HomePage({
               Khám phá hương vị ẩm thực Việt Nam
             </h1>
             <p className="mb-6 max-w-xl text-lg text-gray-600">
-              Nơi chia sẻ những món ăn truyền thống, bí quyết nấu nướng và hương vị đậm đà của ẩm
-              thực Việt Nam. Từ món ăn gia đình đến món ăn dân tộc, mọi công thức đều được chia sẻ
-              với tinh thần yêu bếp và yêu đời.
+              Khám phá công thức nấu ăn Việt Nam và thế giới. Nơi chia sẻ những món ăn truyền thống,
+              bí quyết nấu nướng và hương vị đậm đà của ẩm thực Việt Nam. Từ món ăn gia đình đến món
+              ăn dân tộc, mọi công thức đều được chia sẻ với tinh thần yêu bếp và yêu đời.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/recipes" className="btn btn-primary">
@@ -67,18 +66,3 @@ export default async function HomePage({
     </div>
   );
 }
-=======
-  import Link from 'next/link';
-
-  export default function HomePage() {
-    return (
-      <main className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-4xl font-bold mb-4">Culinary Blog</h1>
-        <p className="text-gray-600 mb-8">Khám phá công thức nấu ăn Việt Nam và thế giới</p>
-        <Link href="/recipes" className="px-6 py-3 bg-orange-500 text-white rounded-xl">
-          Xem công thức
-        </Link>
-      </main>
-    );
-  }
->>>>>>> origin/2312665-KieuHaLinh

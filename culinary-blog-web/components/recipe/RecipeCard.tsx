@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-<<<<<<< HEAD
-import { RecipeListDto } from '@/types/api';
+import type { RecipeListDto } from '@/types/api';
 import { formatDate } from '@/lib/utils/format';
 
 interface RecipeCardProps {
@@ -19,6 +18,9 @@ const difficultyLabels: Record<RecipeListDto['difficulty'], string> = {
 
 export function RecipeCard({ recipe, priority = false, layout = 'card' }: RecipeCardProps) {
   const blurDataUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="450"%3E%3Crect fill="%23fed7aa" width="100%" height="100%"/%3E%3C/svg%3E';
+  const imageUrl = recipe.imageUrl || recipe.primaryImageUrl || '/images/recipe-placeholder.svg';
+  const totalTime = recipe.totalTime ?? (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
+  const imageAlt = `Ảnh công thức: ${recipe.title}`;
 
   // Dạng hàng ngang cho danh sách
   if (layout === 'row') {
@@ -29,8 +31,8 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
       >
         <div className="relative aspect-[16/9] w-40 shrink-0 overflow-hidden sm:w-56">
           <Image
-            src={recipe.primaryImageUrl || '/images/recipe-placeholder.svg'}
-            alt={recipe.title}
+            src={imageUrl}
+            alt={imageAlt}
             fill
             sizes="(max-width: 640px) 160px, 224px"
             placeholder="blur"
@@ -48,7 +50,7 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
           </h3>
           <p className="mb-3 line-clamp-2 text-sm text-gray-600">{recipe.description}</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
-            <span>Tổng: {recipe.totalTime} phút</span>
+            <span>Tổng: {totalTime} phút</span>
             <span>Khẩu phần: {recipe.servings} người</span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-gray-400">
@@ -70,8 +72,8 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden">
         <Image
-          src={recipe.primaryImageUrl || '/images/recipe-placeholder.svg'}
-          alt={recipe.title}
+          src={imageUrl}
+          alt={imageAlt}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           placeholder="blur"
@@ -89,7 +91,7 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
         </h3>
         <p className="mb-3 line-clamp-2 text-sm text-gray-600">{recipe.description}</p>
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>Tổng thời gian: {recipe.totalTime} phút</span>
+          <span>Tổng thời gian: {totalTime} phút</span>
           <span className="ml-3">Khẩu phần: {recipe.servings} người</span>
         </div>
         <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
@@ -108,40 +110,3 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
     </Link>
   );
 }
-=======
-import type { RecipeListDto } from '@/types/api';
-
-interface RecipeCardProps { recipe: RecipeListDto; priority?: boolean; }
-
-const difficultyLabel = { Easy: 'Dễ', Medium: 'Trung bình', Hard: 'Khó' } as const;
-
-export function RecipeCard({ recipe, priority = false }: RecipeCardProps) {
-  return (
-    <Link href={`/recipes/${recipe.slug}`} className="group block">
-      <article className="rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition">
-        <div className="relative aspect-video">
-          <Image
-            src={recipe.primaryImageUrl ?? '/images/recipe-placeholder.jpg'}
-            alt={`Ảnh công thức: ${recipe.title}`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            priority={priority}
-          />
-          <span className="absolute top-2 right-2 px-2 py-1 text-xs font-medium bg-white/90 rounded-full">
-            {difficultyLabel[recipe.difficulty]}
-          </span>
-        </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">{recipe.title}</h3>
-          <p className="text-sm text-gray-500 line-clamp-2 mb-3">{recipe.description}</p>
-          <div className="flex items-center gap-3 text-sm text-gray-400">
-            <span>⏱ {recipe.prepTimeMinutes + recipe.cookTimeMinutes} phút</span>
-            <span>👥 {recipe.servings} người</span>
-          </div>
-        </div>
-      </article>
-    </Link>
-  );
-}
->>>>>>> origin/2312665-KieuHaLinh
