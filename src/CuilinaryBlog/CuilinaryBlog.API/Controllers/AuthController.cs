@@ -11,7 +11,9 @@ using Asp.Versioning;
 namespace CulinaryBlog.API.Controllers;
 
 [ApiVersion("1.0")]
-[Route("api/[controller]")]
+// Khớp với frontend (/api/v1/auth/*) và RecipesController (/api/v1/recipes).
+// [Route("api/[controller]")] trước đây sinh ra /api/Auth/login → frontend gọi /api/v1/auth/login bị 404.
+[Route("api/v1/auth")]
 [ApiController]
 public class AuthController : ControllerBase
 {

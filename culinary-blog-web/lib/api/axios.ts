@@ -54,8 +54,19 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest?._retry) {
-      originalRequest._retry = true;
-      if (typeof window !== 'undefined') {
+      const url = originalRequest?.url ?? '';
+      const path = typeof window !== 'undefined' ? window.location.pathname : '';
+
+      // Không ép reload trang trên /login, /register hoặc các endpoint auth:
+      //  - Sai mật khẩu → login trả 401 → reload làm mất toast, form bị reset,
+      //    người dùng tưởng nút "Đăng nhập" không hoạt động.
+      //  - Ngay sau login, getProfile() được gọi khi vẫn đang ở /login → 401
+      //    (nếu có) sẽ chạy đua với router.push('/profile').
+      const isAuthPage = path === '/login' || path === '/register';
+      const isAuthEndpoint = url.includes('/auth/');
+
+      if (!isAuthPage && !isAuthEndpoint && typeof window !== 'undefined') {
+        originalRequest._retry = true;
         window.location.href = '/login';
       }
     }

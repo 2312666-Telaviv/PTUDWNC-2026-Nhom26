@@ -35,19 +35,22 @@ export default function LoginPage() {
   async function onSubmit(data: LoginForm) {
     setIsLoading(true);
     try {
-      const { token, expiration } = await authService.login(data);
+      const { token } = await authService.login(data);
 
-      // Lấy profile sau khi login để lưu vào store
-      // (có thể trả về profile từ API login, nhưng ở đây gọi riêng)
-      let profile: any = null;
-      try {
-        profile = await authService.getProfile();
-      } catch {
-        // Nếu get profile thất bại, vẫn lưu token
-      }
-
-      loginStore(token, profile ?? { id: '', email: data.email, userName: data.email });
+      // QUAN TRỌNG: lưu token vào store TRƯỚC khi gọi getProfile.
+      // axios interceptor đọc JWT từ 'auth-storage' trong localStorage; nếu gọi
+      // getProfile trước khi lưu sẽ bị 401 → interceptor ép window.location='/login'
+      // → chạy đua với router.push('/profile') khiến nút Đăng nhập như bị "kẹt".
+      loginStore(token, { id: '', email: data.email, userName: data.email });
       localStorage.setItem('token', token);
+
+      // Sau khi có token mới lấy profile thật để hiển thị họ tên đúng trong store.
+      try {
+        const profile = await authService.getProfile();
+        if (profile) loginStore(token, profile);
+      } catch {
+        // Vẫn giữ profile tạm từ email nếu API profile lỗi.
+      }
 
       toast({ title: 'Đăng nhập thành công', description: 'Chào mừng bạn quay lại!' });
       router.push('/profile');
