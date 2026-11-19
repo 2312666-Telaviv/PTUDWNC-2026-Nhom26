@@ -2,6 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AuthRegisterForm } from '@/components/auth/AuthRegisterForm';
 import { AuthStoreHydration } from '@/components/auth/AuthStoreHydration';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'Đăng ký',
@@ -10,28 +18,29 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="bg-orange-50/50 px-4 py-10 sm:py-16">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-orange-50/50 px-4 py-10 sm:py-16">
       <AuthStoreHydration />
 
-      <div className="mx-auto max-w-md">
-        <div className="rounded-lg border border-orange-100 bg-white p-6 shadow-sm sm:p-8">
-          <h1 className="text-2xl font-bold text-gray-900">Tạo tài khoản</h1>
-          <p className="mt-1 text-sm text-gray-600">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Tạo tài khoản</CardTitle>
+          <CardDescription>Đăng ký để bắt đầu sử dụng ứng dụng</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 text-sm text-gray-600">
             Chỉ mất vài giây để bắt đầu chia sẻ công thức cùng cộng đồng.
           </p>
-
-          <div className="mt-6">
-            <AuthRegisterForm />
-          </div>
-        </div>
-
-        <p className="mt-4 text-center text-sm text-gray-500">
-          Quay lại{' '}
-          <Link href="/" className="font-medium text-orange-600 hover:underline">
-            trang chủ
-          </Link>
-        </p>
-      </div>
+          <AuthRegisterForm />
+        </CardContent>
+        <CardFooter className="flex flex-col gap-2">
+          <p className="mt-4 text-center text-sm text-gray-500">
+            Quay lại{' '}
+            <Link href="/" className="font-medium text-orange-600 hover:underline">
+              trang chủ
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

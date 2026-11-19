@@ -2,27 +2,13 @@ import { Metadata } from 'next';
 import { Pagination } from '@/components/common/Pagination';
 import { RecipeCard } from '@/components/recipe/RecipeCard';
 import { recipeApi } from '@/lib/api/server';
-import { getMockRecipes } from '@/lib/mock/recipes';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Công thức nấu ăn',
   description: 'Khám phá các công thức nấu ăn truyền thống Việt Nam',
 };
-
-export async function generateStaticParams() {
-  const allRecipes = getMockRecipes();
-  const totalCount = allRecipes.length;
-  const pageSize = 12;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-
-  const params: { page: string }[] = [];
-  for (let i = 2; i <= totalPages; i++) {
-    params.push({ page: i.toString() });
-  }
-  return params;
-}
 
 interface RecipesPagedPageProps {
   params: Promise<{
@@ -34,7 +20,7 @@ export default async function RecipesPagedPage({ params }: RecipesPagedPageProps
   const { page: pageStr } = await params;
   const page = parseInt(pageStr, 10) || 1;
 
-  const result = await recipeApi.getList({ page, pageSize: 12, categoryId: null });
+  const result = await recipeApi.getList({ page, pageSize: 12, status: 'Published' });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -50,8 +36,8 @@ export default async function RecipesPagedPage({ params }: RecipesPagedPageProps
         <p className="py-8 text-center text-gray-500">Không tìm thấy công thức nào.</p>
       )}
 
-            <Pagination
-        currentPage={result.pageNumber}
+      <Pagination
+        currentPage={Number(result.page) || 1}
         totalPages={result.totalPages}
         getHref={(p) => (p === 1 ? '/recipes' : `/recipes/page/${p}`)}
       />

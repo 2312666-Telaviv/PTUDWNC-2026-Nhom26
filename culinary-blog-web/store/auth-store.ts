@@ -70,8 +70,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
 
-      // TODO: sau khi có API thật, nơi gọi API sẽ gọi setAuth(user, token) sau khi
-      // POST /api/v1/auth/login thành công (lớp API của thành viên phụ trách phần 1 & 2).
+      // Được gọi sau khi POST /api/v1/auth/login thành công trong lib/api/auth-flow.ts.
       setAuth: (user, token) =>
         set({
           user,
@@ -82,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user) => set({ user }),
 
-      // TODO: nếu backend hỗ trợ đăng xuất phía server thì gọi API trước khi xoá state.
+      // Được gọi sau authService.logout() trong lib/api/auth-flow.ts.
       logout: () =>
         set({
           user: null,

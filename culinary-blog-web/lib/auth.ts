@@ -3,8 +3,6 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 
-const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
-
 // Đổi Google id_token lấy JWT của backend.
 // Auth.js chỉ cung cấp profile từ Google; hệ thống mình cần JWT backend để gọi API,
 // nên phải đổi id_token ở server (giữ bí mật client_id/secret và id_token).
@@ -14,15 +12,6 @@ async function exchangeGoogleToken(idToken: string): Promise<{
   userId?: string;
   roles?: string[];
 }> {
-  // Chế độ mock: bỏ qua gọi backend, cấp token giả để luồng đăng nhập chạy được
-  if (USE_MOCK_API) {
-    return {
-      accessToken: 'mock-access-token-google',
-      refreshToken: 'mock-refresh-token-google',
-      roles: ['User'],
-    };
-  }
-
   const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
 
   try {
@@ -60,23 +49,6 @@ const credentialsConfig = Credentials({
     password: { label: 'Mật khẩu', type: 'password' },
   },
   async authorize(credentials) {
-    if (USE_MOCK_API) {
-      const email = credentials?.email as string;
-      const password = credentials?.password as string;
-      if (email === 'demo@culinary.vn' && password === 'Demo@123') {
-        return {
-          id: 'mock-user-1',
-          email: 'demo@culinary.vn',
-          name: 'Demo User',
-          image: null,
-          accessToken: 'mock-access-token',
-          refreshToken: 'mock-refresh-token',
-          roles: ['User'],
-        };
-      }
-      return null;
-    }
-
     try {
       const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${API_URL}/api/v1/auth/login`, {
@@ -109,7 +81,61 @@ const credentialsConfig = Credentials({
   },
 });
 
-const providers: NextAuthConfig['providers'] = [credentialsConfig];
+// Provider phụ: nhận JWT đã có được từ POST /api/v1/auth/login (axios ở client),
+// kiểm tra token bằng GET /api/v1/auth/profile rồi tạo phiên NextAuth tương ứng.
+// Giúp giữ nguyên các component dùng useSession()/auth() trong khi vẫn lưu token thật ở Zustand.
+const backendTokenConfig = Credentials({
+  id: 'backend-token',
+  name: 'Backend JWT',
+  credentials: {
+    accessToken: { label: 'Access Token', type: 'text' },
+    userId: { label: 'User Id', type: 'text' },
+    email: { label: 'Email', type: 'email' },
+    name: { label: 'Name', type: 'text' },
+    roles: { label: 'Roles', type: 'text' },
+  },
+  async authorize(credentials) {
+    const token = credentials?.accessToken as string | undefined;
+    if (!token) return null;
+
+    try {
+      const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/api/v1/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      if (!response.ok) return null;
+
+      const profile = await response.json() as {
+        id?: string;
+        email?: string;
+        userName?: string;
+      };
+
+      let roles: string[] = [];
+      try {
+        const parsed = JSON.parse((credentials?.roles as string) || '[]') as unknown;
+        if (Array.isArray(parsed)) roles = parsed.filter((role): role is string => typeof role === 'string');
+      } catch {
+        roles = [];
+      }
+
+      return {
+        id: profile.id || (credentials?.userId as string),
+        email: profile.email || (credentials?.email as string),
+        name: profile.userName || (credentials?.name as string) || null,
+        image: null,
+        accessToken: token,
+        roles,
+      };
+    } catch (error) {
+      console.error('Lỗi xác thực token backend:', error);
+      return null;
+    }
+  },
+});
+
+const providers: NextAuthConfig['providers'] = [credentialsConfig, backendTokenConfig];
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   providers.push(

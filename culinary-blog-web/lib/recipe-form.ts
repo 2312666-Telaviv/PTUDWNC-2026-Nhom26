@@ -1,6 +1,9 @@
+import { slugify } from '@/lib/utils/slugify';
 import type { CategoryDto } from '@/types/category';
 import type { RecipeDto } from '@/types/api';
 import type { RecipeFormData } from '@/types/recipe';
+
+export const RECIPE_UPDATE_SUCCESS_MESSAGE = 'Đã cập nhật công thức thành công!';
 
 export function recipeToFormValues(
   recipe: RecipeDto,
@@ -11,9 +14,12 @@ export function recipeToFormValues(
   return {
     title: recipe.title,
     description: recipe.description,
-    categoryId: category?.id ?? '',
-    prepTimeMinutes: recipe.preparationTime ?? 0,
-    cookTimeMinutes: recipe.cookingTime ?? 0,
+    slug: recipe.slug,
+    instructions: recipe.instructions ?? '',
+    categoryId: category?.id ?? slugify(recipe.categoryName),
+    categoryName: recipe.categoryName,
+    prepTimeMinutes: recipe.prepTimeMinutes ?? recipe.preparationTime ?? 1,
+    cookTimeMinutes: recipe.cookTimeMinutes ?? recipe.cookingTime ?? 1,
     servings: recipe.servings,
     difficulty: recipe.difficulty,
     primaryImageUrl: recipe.primaryImageUrl ?? '',

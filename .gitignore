@@ -1,16 +1,18 @@
 # Visual Studio
 .vs/
 .vscode/
+.idea/
 
-# Build output
+# .NET build output
 bin/
 obj/
+**/bin/
+**/obj/
+*.tsbuildinfo
 
 # User-specific files
 *.user
 *.suo
-
-# Visual Studio cache
 *.userosscache
 *.sln.docstates
 
@@ -18,14 +20,23 @@ obj/
 *.db
 *.sqlite
 
-# Logs
-*.log
-
 # Node / Next.js
 node_modules/
 .next/
 out/
 
-# Environment
+# Logs
+*.log
+
+# Environment / local env
 .env*
 !.env.example
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Screenshots / temp
+loi/

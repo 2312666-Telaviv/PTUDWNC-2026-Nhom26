@@ -2,22 +2,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getMockRecipes } from '@/lib/mock/recipes';
+import { recipeApi } from '@/lib/api/server';
 import {
   DashboardIcon,
   type DashboardIconName,
 } from '@/components/dashboard/DashboardIcon';
-
-const stats: Array<{
-  label: string;
-  value: string;
-  icon: DashboardIconName;
-}> = [
-  { label: 'Công thức đã lưu', value: '12', icon: 'bookmark' },
-  { label: 'Công thức yêu thích', value: '8', icon: 'heart' },
-  { label: 'Bài viết đã đọc', value: '24', icon: 'book' },
-  { label: 'Ngày tham gia', value: '2024', icon: 'calendar' },
-];
 
 const quickAccess: Array<{
   href: string;
@@ -65,9 +54,20 @@ export default async function DashboardPage() {
   const avatarUrl = session.user.image;
   const initial = (displayName || displayEmail || '?').trim().charAt(0).toUpperCase();
 
-  const suggestedRecipes = [...getMockRecipes()]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 3);
+  const myRecipes = session.user.accessToken
+    ? await recipeApi.getMyForUser(session.user.accessToken)
+    : [];
+
+  const stats: Array<{
+    label: string;
+    value: string;
+    icon: DashboardIconName;
+  }> = [
+    { label: 'Công thức của tôi', value: String(myRecipes.length), icon: 'bookmark' },
+    { label: 'Công thức yêu thích', value: '8', icon: 'heart' },
+    { label: 'Bài viết đã đọc', value: '24', icon: 'book' },
+    { label: 'Ngày tham gia', value: '2024', icon: 'calendar' },
+  ];
 
   return (
     <div className="min-h-screen bg-orange-50/30">
@@ -236,46 +236,61 @@ export default async function DashboardPage() {
             <div>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <DashboardIcon name="sparkles" className="h-5 w-5 text-orange-500" />
-                Công thức gợi ý cho bạn
+                Công thức của tôi
               </h2>
-              <p className="mt-1 text-sm text-gray-600">Một vài món ngon bạn có thể thử ngay hôm nay.</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Chỉ những công thức do bạn tạo; dữ liệu mẫu của cộng đồng không hiển thị ở đây.
+              </p>
             </div>
             <Link
-              href="/recipes"
+              href="/dashboard/recipes"
               className="text-sm font-medium text-orange-600 transition hover:text-orange-700"
             >
-              Xem tất cả →
+              Quản lý công thức →
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {suggestedRecipes.map((recipe) => (
+          {myRecipes.length === 0 ? (
+            <div className="rounded-2xl border border-orange-100 bg-white p-8 text-center shadow-sm">
+              <p className="font-semibold text-gray-900">Bạn chưa có công thức nào.</p>
+              <p className="mt-1 text-sm text-gray-600">Bắt đầu bằng một món ăn nhỏ của riêng bạn nhé.</p>
               <Link
-                key={recipe.id}
-                href={`/recipes/${recipe.slug}`}
-                className="group overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md"
+                href="/recipes/create"
+                className="mt-4 inline-flex rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-700"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-orange-50">
-                  <Image
-                    src={recipe.primaryImageUrl || '/images/recipe-placeholder.svg'}
-                    alt={recipe.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition duration-300 group-hover:scale-105"
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-orange-600 px-2.5 py-1 text-xs font-semibold text-white">
-                    {recipe.categoryName}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 transition group-hover:text-orange-600">
-                    {recipe.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">{recipe.totalTime} phút · {recipe.servings} người</p>
-                </div>
+                Đăng công thức đầu tiên
               </Link>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {myRecipes.slice(0, 3).map((recipe) => (
+                <Link
+                  key={recipe.id}
+                  href={`/recipes/${recipe.slug}`}
+                  className="group overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md"
+                >
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-orange-50">
+                    <Image
+                      src={recipe.primaryImageUrl || '/images/recipe-placeholder.svg'}
+                      alt={recipe.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition duration-300 group-hover:scale-105"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-orange-600 px-2.5 py-1 text-xs font-semibold text-white">
+                      {recipe.categoryName}
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 transition group-hover:text-orange-600">
+                      {recipe.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">{recipe.totalTime} phút · {recipe.servings} người</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

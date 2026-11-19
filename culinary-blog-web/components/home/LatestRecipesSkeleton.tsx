@@ -7,13 +7,13 @@ export function LatestRecipesSkeleton() {
         <div className="h-7 w-48 rounded bg-gray-200" />
         <div className="mt-2 h-4 w-72 max-w-full rounded bg-gray-100" />
       </div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <div
             key={item}
-            className="animate-pulse overflow-hidden rounded-lg border border-orange-100 bg-white shadow-sm"
+            className="animate-pulse overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
           >
-            <div className="aspect-[16/9] w-full bg-gray-200" />
+            <div className="aspect-video w-full bg-gray-200" />
             <div className="space-y-3 p-4">
               <div className="h-5 w-3/4 rounded bg-gray-200" />
               <div className="h-4 w-full rounded bg-gray-100" />

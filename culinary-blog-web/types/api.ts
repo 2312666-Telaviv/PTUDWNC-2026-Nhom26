@@ -1,24 +1,58 @@
+export type RecipeStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
+
 export interface RecipeIngredientDto {
-  id: number;
+  id?: number | string | any;
   name: string;
-  quantity: string;
+  quantity: string | number | any;
   unit: string;
+  notes?: string;
 }
 
 export interface RecipeStepDto {
-  id: number;
-  stepNumber: number;
-  title: string;
+  id?: number | string | any;
+  stepNumber?: number;
+  title?: string;
   description: string;
+  durationMinutes?: number;
   imageUrl?: string | null;
 }
 
-// Trạng thái công thức theo luồng: Draft -> Published -> Archived/Deleted.
-// Deleted là xóa mềm: bản ghi vẫn còn nhưng không hiển thị công khai.
-export type RecipeStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
+export interface RecipeListDto {
+  id?: number | string | any;
+  title: string;
+  slug: string;
+  description: string;
+  imageUrl?: string;
+  primaryImageUrl?: string;
+  status: RecipeStatus;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  prepTimeMinutes?: number;
+  cookTimeMinutes?: number;
+  totalTime?: number;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  categoryName: string;
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
+}
 
-// Payload dùng chung cho form tạo/cập nhật công thức.
-// categoryId dùng UUID của CategoryDto (khớp schema validate phía client/server).
+export interface RecipeDto extends RecipeListDto {
+  preparationTime: number;
+  cookingTime: number;
+  categoryId?: number | string | any;
+  instructions?: string;
+  likeCount: number;
+  isLiked: boolean;
+  ingredients: RecipeIngredientDto[];
+  steps: RecipeStepDto[];
+  tags?: string[];
+}
+
 export interface RecipeRequest {
   title: string;
   description: string;
@@ -29,58 +63,20 @@ export interface RecipeRequest {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   primaryImageUrl?: string;
   tags?: string;
-  ingredients: Array<{
-    name: string;
-    quantity: string;
-    unit: string;
-  }>;
-  steps: Array<{
-    title?: string;
-    description: string;
-    durationMinutes?: number;
-  }>;
-  status?: 'Draft' | 'Published';
-}
-
-export interface RecipeDto {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  preparationTime: number;
-  cookingTime: number;
-  totalTime: number;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  categoryId: number;
-  categoryName: string;
-  authorId: string;
-  authorName: string;
-  primaryImageUrl: string;
-  status: RecipeStatus;
-  viewCount: number;
-  likeCount: number;
-  isLiked: boolean;
-  createdAt: string;
-  updatedAt: string;
+  status?: RecipeStatus;
   ingredients: RecipeIngredientDto[];
   steps: RecipeStepDto[];
-  tags?: string[];
 }
 
-export interface RecipeListDto {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  totalTime: number;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  categoryName: string;
-  authorName?: string;
-  primaryImageUrl: string;
-  viewCount: number;
-  createdAt: string;
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber?: number | string | any;
+  page?: number | string | any;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
 }
 
 export interface CommentDto {
@@ -95,19 +91,6 @@ export interface CommentDto {
   replies?: CommentDto[];
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface LoginResponseDto {
   accessToken: string;
   expiration: string;
@@ -115,12 +98,6 @@ export interface LoginResponseDto {
   email: string;
   name?: string | null;
   roles: string[];
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  name?: string;
 }
 
 export interface AssignRoleRequest {
@@ -140,9 +117,118 @@ export interface ApiProblemDetails {
 export interface RecipeFilters {
   page?: number;
   pageSize?: number;
-  categoryId?: number | null;
+  categoryId?: number | string | null;
+  categoryName?: string;
+  status?: RecipeStatus;
   keyword?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   minTotalTime?: number;
   maxTotalTime?: number;
+}
+
+export interface AuthTokens {
+  token: string;
+  expiration: string;
+}
+
+export interface ProfileDto {
+  id: string;
+  email: string;
+  userName: string;
+  name?: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface ChangePasswordRequest {
+  email: string;
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+}
+
+export interface UpdateProfileRequest {
+  email: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  token: string;
+  expiration: string;
+}
+
+export interface AuthState {
+  user: ProfileDto | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  setUser: (user: ProfileDto | null, token: string | null) => void;
+  login: (token: string, user: ProfileDto) => void;
+  logout: () => void;
+}
+
+export interface RecipeFormValues {
+  title: string;
+  description: string;
+  slug: string;
+  prepTimeMinutes: number;
+  cookTimeMinutes: number;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  categoryName: string;
+  instructions?: string;
+  ingredients: RecipeIngredientDto[];
+  steps: RecipeStepDto[];
+}
+
+export interface CreateRecipeRequest extends RecipeFormValues {
+  status?: RecipeStatus;
+  imageFile?: File | null;
+}
+
+export interface UpdateRecipeRequest extends RecipeFormValues {
+  imageFile?: File | null;
+}
+
+export interface CreateRecipeResponse {
+  message: string;
+  recipeId: number;
+  slug?: string;
+  status?: RecipeStatus;
+  imageUrl?: string;
+}
+
+export interface UpdateRecipeResponse {
+  message: string;
+  recipeId: number;
+  imageUrl?: string;
+}
+
+export interface ChangeStatusResponse {
+  message: string;
+  recipeId: number;
+  status: RecipeStatus;
+}
+
+export interface StatusTransitions {
+  currentStatus: RecipeStatus;
+  allowedStatuses: RecipeStatus[];
 }

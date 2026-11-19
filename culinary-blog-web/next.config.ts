@@ -22,11 +22,29 @@ const nextConfig: NextConfig = {
         port: '5001',
       },
       {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5001',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5041',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '5041',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    unoptimized: true,
   },
 };
 

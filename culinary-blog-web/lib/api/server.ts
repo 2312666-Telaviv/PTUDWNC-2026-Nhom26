@@ -1,155 +1,145 @@
-import { notFound } from 'next/navigation';
-import { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
-import { CategoryDto } from '@/types/category';
-import { getMockCategories } from '@/lib/mock/categories';
-import {
-  getPublishedRecipeBySlug,
-  getRecipeById,
-  listPublishedRecipes,
-  paginateRecipeList,
-} from '@/lib/mock/recipe-store';
-
-const API_URL = (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041').replace(/\/$/, '');
-const API_BASE_URL = `${API_URL}/api/v1`;
-const USE_MOCK_API = process.env.USE_MOCK_API === 'true';
+import apiClient from './axios';
+import { normalizePaginatedResult, normalizeRecipe } from './recipe-mapper';
+import { slugify } from '@/lib/utils/slugify';
+import type { PaginatedResult, RecipeDto, RecipeListDto } from '@/types/api';
+import type { CategoryDto } from '@/types/category';
 
 interface GetListParams {
   page?: number;
   pageSize?: number;
-  categoryId?: number | null;
+  categoryName?: string;
+  status?: 'Draft' | 'Published' | 'Archived' | 'Deleted';
+  includeSystemSeed?: boolean;
 }
 
-interface GetRecipeOptions {
-  includeUnpublished?: boolean;
+const apiBaseUrl = `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5041')
+  .replace(/\/api\/?$/, '')
+  .replace(/\/+$/, '')}/api/v1`;
+
+async function fetchFromApi<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
+  const response = await apiClient.get<T>(endpoint, { params });
+  return response.data;
 }
 
-async function fetchFromApi<T>(endpoint: string): Promise<T> {
-  if (!API_URL) {
-    throw new Error('API_URL không được cấu hình');
-  }
+async function fetchFromApiWithToken<T>(
+  endpoint: string,
+  accessToken: string,
+  params?: Record<string, unknown>
+): Promise<T> {
+  const url = new URL(`${apiBaseUrl}${endpoint}`);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) url.searchParams.set(key, String(value));
+  });
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
     cache: 'no-store',
   });
 
   if (!response.ok) {
-    throw new Error(`Lỗi khi gọi API: ${response.status}`);
+    throw new Error(`API ${endpoint} trả về ${response.status}`);
   }
 
   return response.json() as Promise<T>;
-}
-
-function getMockList(params: GetListParams = {}): PaginatedResult<RecipeListDto> {
-  const page = params.page ?? 1;
-  const pageSize = params.pageSize ?? 12;
-
-  // listPublishedRecipes đã lọc status = Published nên Draft/Archived/Deleted
-  // không bao giờ lộ ra các trang công khai.
-  const recipes = listPublishedRecipes({ categoryId: params.categoryId });
-  return paginateRecipeList(recipes, page, pageSize);
 }
 
 export const recipeApi = {
   async getList(params: GetListParams = {}): Promise<PaginatedResult<RecipeListDto>> {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 12;
-    const categoryId = params.categoryId;
-
-    if (USE_MOCK_API) {
-      return getMockList({ page, pageSize, categoryId });
-    }
 
     try {
-      const queryParams = new URLSearchParams();
-      queryParams.append('pageNumber', page.toString());
-      queryParams.append('pageSize', pageSize.toString());
-      if (categoryId) {
-        queryParams.append('categoryId', categoryId.toString());
-      }
+      const raw = await fetchFromApi<Record<string, unknown>>('/recipes', {
+        page,
+        pageSize,
+        ...(params.status ? { status: params.status } : {}),
+        includeSystemSeed: params.includeSystemSeed ?? false,
+      });
+      const result = normalizePaginatedResult(raw);
+      if (!params.categoryName) return result;
 
-      const data = await fetchFromApi<PaginatedResult<RecipeListDto>>(
-        `/recipes?${queryParams.toString()}`
+      const items = result.items.filter(
+        (recipe) => recipe.categoryName === params.categoryName
       );
-      return data;
+      const totalPages = Math.ceil(items.length / pageSize);
+
+      return {
+        ...result,
+        items,
+        totalCount: items.length,
+        totalPages,
+        hasNextPage: page < totalPages,
+      };
     } catch (error) {
-      console.warn('Gọi API thật bại, chuyển sang dùng mock dữ liệu:', error);
-      return getMockList({ page, pageSize, categoryId });
+      console.warn('Không tải được danh sách công thức từ API:', error);
+      return {
+        items: [],
+        totalCount: 0,
+        page,
+        pageNumber: page,
+        pageSize,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: page > 1,
+      };
     }
   },
 
   async getLatest(limit = 6): Promise<RecipeListDto[]> {
-    if (USE_MOCK_API) {
-      return [...listPublishedRecipes()]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, limit);
-    }
-
-    const result = await recipeApi.getList({ page: 1, pageSize: limit });
-    if (!Array.isArray(result.items)) {
-      throw new Error('Phản hồi API công thức không đúng định dạng danh sách có phân trang');
-    }
-
+    const result = await recipeApi.getList({ page: 1, pageSize: limit, status: 'Published' });
     return [...result.items]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, limit);
   },
 
-  // Trang công khai chỉ được xem công thức Published.
   async getBySlug(slug: string): Promise<RecipeDto> {
-    if (USE_MOCK_API) {
-      const recipe = getPublishedRecipeBySlug(slug);
-      if (!recipe) {
-        notFound();
-      }
-      return recipe;
-    }
-
-    try {
-      const data = await fetchFromApi<RecipeDto>(`/recipes/${slug}`);
-      return data;
-    } catch (error) {
-      console.warn('Gọi API thật bại, chuyển sang dùng mock dữ liệu:', error);
-      const recipe = getPublishedRecipeBySlug(slug);
-      if (!recipe) {
-        notFound();
-      }
-      return recipe;
-    }
+    const raw = await fetchFromApi<Record<string, unknown>>(
+      `/recipes/slug/${encodeURIComponent(slug)}`
+    );
+    return normalizeRecipe(raw);
   },
 
-  // Trang quản lý (edit) cần xem được cả Draft/Archived.
-  async getById(id: number, options: GetRecipeOptions = {}): Promise<RecipeDto> {
-    if (USE_MOCK_API) {
-      const recipe = getRecipeById(id, options);
-      if (!recipe) {
-        notFound();
-      }
-      return recipe;
-    }
+  async getById(id: number): Promise<RecipeDto> {
+    const raw = await fetchFromApi<Record<string, unknown>>(`/recipes/${id}`);
+    return normalizeRecipe(raw);
+  },
 
+  async getMyForUser(accessToken: string): Promise<RecipeListDto[]> {
     try {
-      const data = await fetchFromApi<RecipeDto>(`/recipes/${id}`);
-      return data;
+      const raw = await fetchFromApiWithToken<unknown>('/recipes/my', accessToken);
+      if (!Array.isArray(raw)) return [];
+      return raw.map((item) =>
+        normalizeRecipe(item as Record<string, unknown>)
+      );
     } catch (error) {
-      console.warn('Gọi API thật bại, chuyển sang dùng mock dữ liệu:', error);
-      const recipe = getRecipeById(id, options);
-      if (!recipe) {
-        notFound();
-      }
-      return recipe;
+      console.warn('Không tải được công thức của người dùng hiện tại:', error);
+      return [];
     }
   },
 };
 
 export const categoryApi = {
   async getList(): Promise<CategoryDto[]> {
-    // Backend .NET hiện chưa có entity/controller Category nên chưa có endpoint
-    // danh sách danh mục. Trong lúc chờ backend, dùng dữ liệu mock của dự án.
-    // Khi backend bổ sung GET /api/v1/categories, thay phần thân hàm này bằng
-    // fetchFromApi<CategoryDto[]>('/categories').
-    return getMockCategories();
+    try {
+      const raw = await fetchFromApi<unknown>('/categories');
+      if (!Array.isArray(raw)) return [];
+
+      return raw
+        .map((item): CategoryDto | null => {
+          if (!item || typeof item !== 'object') return null;
+          const category = item as Record<string, unknown>;
+          const name = typeof category.name === 'string' ? category.name.trim() : '';
+          if (!name) return null;
+
+          const slug =
+            typeof category.slug === 'string' && category.slug ? category.slug : slugify(name);
+          return { id: String(category.id ?? slug), name, slug };
+        })
+        .filter((category): category is CategoryDto => category !== null)
+        .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+    } catch (error) {
+      console.warn('Không tải được danh mục từ API:', error);
+      return [];
+    }
   },
 };

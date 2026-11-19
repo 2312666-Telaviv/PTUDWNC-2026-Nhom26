@@ -29,12 +29,28 @@ export const recipeSchema = z.object({
     .min(20, 'Mô tả phải có ít nhất 20 ký tự')
     .max(2000, 'Mô tả không được vượt quá 2000 ký tự'),
 
-    categoryId: z
-  .string({
-    required_error: 'Vui lòng chọn danh mục',
-    invalid_type_error: 'Danh mục không hợp lệ',
-  })
-    .uuid('Danh mục không hợp lệ'),
+  slug: z
+    .string()
+    .trim()
+    .max(100, 'Slug không được vượt quá 100 ký tự'),
+
+  instructions: z
+    .string()
+    .trim()
+    .max(4000, 'Hướng dẫn không được vượt quá 4000 ký tự')
+    .optional(),
+
+  categoryId: z
+    .string()
+    .min(1, 'Vui lòng chọn danh mục'),
+
+  categoryName: z
+    .string({
+      required_error: 'Vui lòng chọn danh mục',
+      invalid_type_error: 'Danh mục không hợp lệ',
+    })
+    .min(1, 'Vui lòng chọn danh mục')
+    .max(100, 'Tên danh mục không được vượt quá 100 ký tự'),
 
   prepTimeMinutes: z
     .number({
@@ -42,7 +58,7 @@ export const recipeSchema = z.object({
       invalid_type_error: 'Thời gian chuẩn bị phải là số',
     })
     .int('Thời gian chuẩn bị phải là số nguyên')
-    .min(0, 'Thời gian chuẩn bị không được âm')
+    .min(1, 'Thời gian chuẩn bị tối thiểu là 1 phút')
     .max(1440, 'Thời gian chuẩn bị tối đa 1440 phút'),
 
   cookTimeMinutes: z
@@ -51,7 +67,7 @@ export const recipeSchema = z.object({
       invalid_type_error: 'Thời gian nấu phải là số',
     })
     .int('Thời gian nấu phải là số nguyên')
-    .min(0, 'Thời gian nấu không được âm')
+    .min(1, 'Thời gian nấu tối thiểu là 1 phút')
     .max(1440, 'Thời gian nấu tối đa 1440 phút'),
 
   servings: z
@@ -61,7 +77,7 @@ export const recipeSchema = z.object({
     })
     .int('Số khẩu phần phải là số nguyên')
     .min(1, 'Số khẩu phần tối thiểu là 1')
-    .max(100, 'Số khẩu phần tối đa là 100'),
+    .max(50, 'Số khẩu phần tối đa là 50'),
 
   difficulty: z.enum(['Easy', 'Medium', 'Hard'], {
     errorMap: () => ({ message: 'Độ khó không hợp lệ' }),

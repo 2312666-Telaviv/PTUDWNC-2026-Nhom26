@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Pagination } from '@/components/common/Pagination';
 import { RecipeGrid } from '@/components/recipe/RecipeGrid';
 import { ViewModeToggle } from '@/components/recipe/ViewModeToggle';
 import { recipeApi } from '@/lib/api/server';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Công thức nấu ăn',
@@ -12,13 +12,15 @@ export const metadata: Metadata = {
 };
 
 export default async function RecipesPage() {
-  const result = await recipeApi.getList({ page: 1, pageSize: 12, categoryId: null });
-
+  const result = await recipeApi.getList({ page: 1, pageSize: 12, status: 'Published' });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="container mx-auto max-w-7xl px-4 py-12">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">Công thức nấu ăn</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Công thức nấu ăn</h1>
+          <p className="mt-1 text-sm text-gray-600">Danh sách công thức</p>
+        </div>
         <ViewModeToggle />
       </div>
 
@@ -28,12 +30,11 @@ export default async function RecipesPage() {
         <p className="py-8 text-center text-gray-500">Không tìm thấy công thức nào.</p>
       )}
 
-           <Pagination
-        currentPage={result.pageNumber}
+      <Pagination
+        currentPage={Number(result.page) || 1}
         totalPages={result.totalPages}
         getHref={(page) => (page === 1 ? '/recipes' : `/recipes/page/${page}`)}
       />
     </div>
   );
 }
-

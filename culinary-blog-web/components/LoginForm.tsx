@@ -1,10 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { loginWithBackend } from '@/lib/api/auth-flow';
+import { getApiErrorMessage } from '@/lib/api/errorMessage';
 
 interface LoginFormProps {
   callbackUrl: string;
@@ -23,21 +23,15 @@ export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
     setError(null);
     setIsSubmitting(true);
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-
-    setIsSubmitting(false);
-
-    if (result?.error) {
-      setError('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
-      return;
+    try {
+      await loginWithBackend(email, password);
+      router.push(callbackUrl || '/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Không thể đăng nhập. Vui lòng thử lại.'));
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push(callbackUrl || '/dashboard');
-    router.refresh();
   };
 
   return (
@@ -70,7 +64,7 @@ export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
 
       <button
         type="submit"
@@ -83,7 +77,7 @@ export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
       {googleEnabled && (
         <div className="space-y-3">
           <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
+              <div className="absolute inset-0">
               <span className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs">
@@ -93,19 +87,6 @@ export function LoginForm({ callbackUrl, googleEnabled }: LoginFormProps) {
           <GoogleSignInButton callbackUrl={callbackUrl} />
         </div>
       )}
-
-      {process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' && (
-        <p className="rounded-md bg-orange-50 p-3 text-sm text-gray-600">
-          Tài khoản demo: <strong>demo@culinary.vn</strong> / <strong>Demo@123</strong>
-        </p>
-      )}
-
-      <p className="text-center text-sm text-gray-600">
-        Chưa có tài khoản?{' '}
-        <Link href="/register" className="font-medium text-orange-600 hover:underline">
-          Đăng ký ngay
-        </Link>
-      </p>
     </form>
   );
 }
