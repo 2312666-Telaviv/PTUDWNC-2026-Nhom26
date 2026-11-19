@@ -1,0 +1,25 @@
+# .NET build output
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Logs & local env
+*.log
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
+
+# Screenshots / temp
+loi/

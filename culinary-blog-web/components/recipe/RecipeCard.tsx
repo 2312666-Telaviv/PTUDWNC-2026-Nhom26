@@ -12,7 +12,7 @@ export function RecipeCard({ recipe, priority = false }: RecipeCardProps) {
       <article className="rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition">
         <div className="relative aspect-video">
           <Image
-            src={recipe.primaryImageUrl ?? '/images/recipe-placeholder.jpg'}
+            src={recipe.imageUrl ?? recipe.primaryImageUrl ?? '/images/recipe-placeholder.jpg'}
             alt={`Ảnh công thức: ${recipe.title}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

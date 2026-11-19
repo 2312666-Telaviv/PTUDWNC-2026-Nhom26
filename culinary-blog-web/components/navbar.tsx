@@ -43,6 +43,11 @@ export function Navbar() {
             <Link href="/recipes" className="text-muted-foreground hover:text-primary transition-colors">
               Công thức
             </Link>
+            {isAuthenticated && (
+              <Link href="/recipes/manage" className="text-muted-foreground hover:text-primary transition-colors">
+                Quản lý công thức
+              </Link>
+            )}
           </div>
 
           {/* Auth links */}

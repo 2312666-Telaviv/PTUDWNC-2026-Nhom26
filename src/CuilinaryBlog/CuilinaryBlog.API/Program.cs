@@ -86,6 +86,9 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
+// Đăng ký ImageService
+builder.Services.AddScoped<CulinaryBlog.Application.Services.IImageService, CulinaryBlog.Infrastructure.Services.ImageService>();
+
 // Cấu hình API Versioning
 var versioningBuilder = builder.Services.AddApiVersioning(options =>
 {
@@ -127,6 +130,8 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
+app.UseStaticFiles(); // Phục vụ ảnh upload trong wwwroot/images/recipes
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
