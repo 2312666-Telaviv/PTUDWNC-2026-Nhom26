@@ -57,7 +57,8 @@ async function applyAuth(config: InternalAxiosRequestConfig) {
 function redirectOnUnauthorized(error: AxiosError) {
   const originalRequest = error.config as RetryableRequestConfig | undefined;
   const url = originalRequest?.url ?? '';
-  const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
+  const isAuthEndpoint =
+    url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/logout');
 
   if (!isAuthEndpoint && error.response?.status === 401 && originalRequest && !originalRequest._retry) {
     originalRequest._retry = true;

@@ -55,3 +55,11 @@ export function formatNumber(value: number): string {
   return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+export function formatAuthorName(value?: string | null): string {
+  const name = (value ?? '').trim();
+  if (!name || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)) {
+    return 'Thành viên Culinary Blog';
+  }
+  return name;
+}
+

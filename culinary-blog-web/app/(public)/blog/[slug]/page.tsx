@@ -9,7 +9,7 @@ import {
   getMockBlogPostBySlug,
   mockBlogPosts,
 } from '@/lib/mock/blog-posts';
-import { formatDate, formatNumber } from '@/lib/utils/format';
+import { formatAuthorName, formatDate, formatNumber } from '@/lib/utils/format';
 
 interface BlogPostDetailPageProps {
   params: Promise<{
@@ -56,7 +56,8 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
   }
 
   const comments = getMockBlogCommentsByPostId(post.id);
-  const authorInitial = post.author.name.trim().charAt(0).toUpperCase();
+  const authorName = formatAuthorName(post.author.name);
+  const authorInitial = authorName.trim().charAt(0).toUpperCase();
 
   return (
     <div className="bg-orange-50/30">
@@ -92,7 +93,7 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
                 {authorInitial}
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">{post.author.name}</p>
+                <p className="text-sm font-semibold text-gray-900">{authorName}</p>
                 <p className="text-xs text-gray-500">{post.author.role}</p>
               </div>
             </div>

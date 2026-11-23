@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AuthRegisterForm } from '@/components/auth/AuthRegisterForm';
-import { AuthStoreHydration } from '@/components/auth/AuthStoreHydration';
 
 export const metadata: Metadata = {
   title: 'Đăng ký',
@@ -15,8 +14,6 @@ export const metadata: Metadata = {
 export default function BlogRegisterPage() {
   return (
     <div className="bg-orange-50/50 px-4 py-10 sm:py-16">
-      <AuthStoreHydration />
-
       <div className="mx-auto max-w-md">
         <div className="rounded-lg border border-orange-100 bg-white p-6 shadow-sm sm:p-8">
           <h1 className="text-2xl font-bold text-gray-900">Tạo tài khoản</h1>

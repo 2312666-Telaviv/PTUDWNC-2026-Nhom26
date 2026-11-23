@@ -78,7 +78,13 @@ namespace CulinaryBlog.API.Controllers
             return char.ToUpperInvariant(value[0]) + value.Substring(1).ToLowerInvariant();
         }
 
-        private static object MapRecipe(Recipe r) => new
+        private object MapRecipe(Recipe r)
+        {
+            var authorName = r.Author == null
+                ? null
+                : _context.Entry(r.Author).Property<string>("FullName").CurrentValue;
+
+            return new
         {
             id = r.Id,
             title = r.Title,
@@ -94,7 +100,7 @@ namespace CulinaryBlog.API.Controllers
             instructions = r.Instructions,
             status = r.Status,
             authorId = r.AuthorId,
-            authorName = r.Author?.Email ?? string.Empty,
+            authorName = string.IsNullOrWhiteSpace(authorName) ? "Thành viên Culinary Blog" : authorName,
             createdAt = r.CreatedAt,
             updatedAt = r.UpdatedAt,
             publishedAt = r.PublishedAt,
@@ -118,6 +124,7 @@ namespace CulinaryBlog.API.Controllers
                 })
                 .ToList()
         };
+        }
 
         private async Task<(string? Url, string? Error)> SaveImageAsync(IFormFile? file)
         {

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Clock3, Eye, Heart, MessageCircle, UserRound } from 'lucide-react';
 import type { RecipeListDto } from '@/types/api';
-import { formatDate } from '@/lib/utils/format';
+import { formatAuthorName, formatDate } from '@/lib/utils/format';
 
 interface RecipeCardProps {
   recipe: RecipeListDto;
@@ -22,6 +22,7 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
   const imageUrl = recipe.imageUrl || recipe.primaryImageUrl || '/images/recipe-placeholder.svg';
   const totalTime = recipe.totalTime ?? (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
   const imageAlt = `Ảnh công thức: ${recipe.title}`;
+  const authorName = formatAuthorName(recipe.authorName);
 
   const badges = (
     <>
@@ -40,10 +41,10 @@ export function RecipeCard({ recipe, priority = false, layout = 'card' }: Recipe
       <span className="rounded-full bg-orange-50 px-2.5 py-1 font-medium text-orange-700">
         {recipe.categoryName}
       </span>
-      {recipe.authorName && (
+      {authorName && (
         <span className="inline-flex items-center gap-1">
           <UserRound className="h-3.5 w-3.5 text-orange-500" />
-          <span className="max-w-[120px] truncate">{recipe.authorName}</span>
+          <span className="max-w-[120px] truncate">{authorName}</span>
         </span>
       )}
       {recipe.likeCount !== undefined && (

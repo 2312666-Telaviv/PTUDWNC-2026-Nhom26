@@ -1,35 +1,74 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { authService } from '@/lib/api/services';
-import { loginWithBackend } from '@/lib/api/auth-flow';
+import { loginWithBackend, logoutFromBackend } from '@/lib/api/auth-flow';
 import { getApiErrorMessage } from '@/lib/api/errorMessage';
 
 export function AuthRegisterForm() {
   const router = useRouter();
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const user = useAuthStore((state) => state.user);
+  const isLoggedIn = !!user || !!session?.user;
+  const displayName = user?.name || session?.user?.name || session?.user?.email || 'người dùng';
+
+  const handleLogoutForRegistration = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutFromBackend({ redirectTo: pathname || '/register' });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setServerError(null);
     setSuccess(null);
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    const normalizedFullName = fullName.trim();
+    const normalizedEmail = email.trim();
+
+    if (!normalizedFullName) {
+      setServerError('Vui lòng nhập họ tên.');
+      return;
+    }
+    if (normalizedFullName.length < 2 || normalizedFullName.length > 50) {
+      setServerError('Họ tên phải có từ 2 đến 50 ký tự.');
+      return;
+    }
+    if (/[<>]/.test(normalizedFullName)) {
+      setServerError('Họ tên không được chứa ký tự < hoặc >.');
+      return;
+    }
+    if (normalizedFullName.toLowerCase() === normalizedEmail.toLowerCase()) {
+      setServerError('Họ tên không được trùng với email.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setServerError('Email không hợp lệ.');
       return;
     }
     if (password.length < 6) {
       setServerError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+    if (!confirmPassword) {
+      setServerError('Vui lòng nhập xác nhận mật khẩu.');
       return;
     }
     if (password !== confirmPassword) {
@@ -40,7 +79,12 @@ export function AuthRegisterForm() {
     setIsSubmitting(true);
 
     try {
-      await authService.register({ email: email.trim(), password });
+      await authService.register({
+        fullName: normalizedFullName,
+        email: normalizedEmail,
+        password,
+        confirmPassword,
+      });
 
       try {
         await loginWithBackend(email, password);
@@ -57,10 +101,18 @@ export function AuthRegisterForm() {
     }
   };
 
-  if (user) {
+  if (status === 'loading' && !user) {
+    return (
+      <div className="rounded-md border border-orange-100 bg-orange-50 p-4 text-sm text-gray-600">
+        Đang kiểm tra trạng thái đăng nhập...
+      </div>
+    );
+  }
+
+  if (isLoggedIn) {
     return (
       <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-        <p className="font-semibold">Bạn đã đăng nhập với tên {user.name}.</p>
+        <p className="font-semibold">Bạn đã đăng nhập với tên {displayName}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/profile" className="btn btn-primary">
             Xem hồ sơ
@@ -68,6 +120,16 @@ export function AuthRegisterForm() {
           <Link href="/blog" className="btn btn-outline">
             Xem bài viết
           </Link>
+        </div>
+        <div className="mt-3 border-t border-green-200 pt-3">
+          <button
+            type="button"
+            onClick={() => void handleLogoutForRegistration()}
+            disabled={isLoggingOut}
+            className="btn btn-outline w-full"
+          >
+            {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất để đăng ký tài khoản khác'}
+          </button>
         </div>
       </div>
     );
@@ -95,6 +157,26 @@ export function AuthRegisterForm() {
       )}
 
       <div>
+        <label htmlFor="register-full-name" className="form-label">
+          Họ và tên
+        </label>
+        <input
+          id="register-full-name"
+          type="text"
+          value={fullName}
+          onChange={(event) => {
+            setFullName(event.target.value);
+            if (serverError) setServerError(null);
+          }}
+          placeholder="Nguyễn Văn A"
+          className="input"
+          autoComplete="name"
+          maxLength={50}
+          required
+        />
+      </div>
+
+      <div>
         <label htmlFor="register-email" className="form-label">
           Email
         </label>
@@ -109,8 +191,8 @@ export function AuthRegisterForm() {
           placeholder="ban@example.com"
           className="input"
           autoComplete="email"
+          required
         />
-        <p className="mt-1 text-xs text-gray-500">Email cũng là tên đăng nhập của bạn.</p>
       </div>
 
       <div>
@@ -128,6 +210,7 @@ export function AuthRegisterForm() {
           placeholder="Tối thiểu 6 ký tự"
           className="input"
           autoComplete="new-password"
+          required
         />
       </div>
 
@@ -146,6 +229,7 @@ export function AuthRegisterForm() {
           placeholder="Nhập lại mật khẩu"
           className="input"
           autoComplete="new-password"
+          required
         />
       </div>
 

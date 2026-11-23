@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using CulinaryBlog.Application.DTOs;
 using CulinaryBlog.Application.Services;
+using CulinaryBlog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +20,18 @@ public class AuthController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
+    private readonly ApplicationDbContext _dbContext;
 
     public AuthController(
         UserManager<IdentityUser> userManager,
         ITokenService tokenService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ApplicationDbContext dbContext)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _configuration = configuration;
+        _dbContext = dbContext;
     }
 
     /// <summary>
@@ -41,12 +45,59 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
-        var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var fullName = model.FullName?.Trim() ?? string.Empty;
+        var email = model.Email?.Trim() ?? string.Empty;
+        var password = model.Password ?? string.Empty;
+        var confirmPassword = model.ConfirmPassword ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(new { message = "Vui lòng nhập email." });
+        }
+        if (!IsValidEmail(email))
+        {
+            return BadRequest(new { message = "Email không hợp lệ." });
+        }
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            return BadRequest(new { message = "Vui lòng nhập mật khẩu." });
+        }
+        if (password.Length < 6)
+        {
+            return BadRequest(new { message = "Mật khẩu phải có ít nhất 6 ký tự." });
+        }
+        if (string.IsNullOrWhiteSpace(confirmPassword))
+        {
+            return BadRequest(new { message = "Vui lòng nhập xác nhận mật khẩu." });
+        }
+        if (!string.Equals(password, confirmPassword, StringComparison.Ordinal))
+        {
+            return BadRequest(new { message = "Mật khẩu xác nhận không khớp." });
+        }
+
+        var fullNameError = ValidateFullName(fullName, email);
+        if (fullNameError != null)
+        {
+            return BadRequest(new { message = fullNameError });
+        }
+
+        if (await _userManager.FindByEmailAsync(email) != null)
+        {
+            return BadRequest(new { message = "Email đã được sử dụng." });
+        }
+
+        var user = new IdentityUser { UserName = email, Email = email };
+        _dbContext.SetUserFullName(user, fullName);
+        var result = await _userManager.CreateAsync(user, password);
 
         if (!result.Succeeded)
         {
-            return BadRequest(result.Errors);
+            var isDuplicate = result.Errors.Any(error =>
+                error.Code is "DuplicateEmail" or "DuplicateUserName");
+            var message = isDuplicate
+                ? "Email đã được sử dụng."
+                : string.Join("; ", result.Errors.Select(error => error.Description));
+            return BadRequest(new { message });
         }
 
         await _userManager.AddToRoleAsync(user, "User");
@@ -82,7 +133,9 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Email = user.Email ?? string.Empty,
             Name = user.UserName,
-            Roles = userRoles.ToList()
+            FullName = _dbContext.GetUserFullName(user),
+            Roles = userRoles.ToList(),
+            IsDefaultPassword = _dbContext.GetIsDefaultPassword(user)
         });
     }
 
@@ -94,9 +147,17 @@ public class AuthController : ControllerBase
         if (user == null)
             return NotFound(new { message = "Không tìm thấy người dùng!" });
 
+        if (!string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { message = "Email không khớp với tài khoản đang đăng nhập!" });
+        }
+
         var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
         if (!result.Succeeded)
             return BadRequest(result.Errors);
+
+        _dbContext.SetIsDefaultPassword(user, false);
+        await _dbContext.SaveChangesAsync();
 
         return Ok(new { message = "Đổi mật khẩu thành công!" });
     }
@@ -144,6 +205,7 @@ public class AuthController : ControllerBase
             Id = user.Id,
             Email = user.Email!,
             UserName = user.UserName!,
+            FullName = _dbContext.GetUserFullName(user),
         };
 
         return Ok(profile);
@@ -157,14 +219,20 @@ public class AuthController : ControllerBase
         if (user == null)
             return NotFound(new { message = "Không tìm thấy người dùng!" });
 
-        user.Email = model.Email;
-        user.UserName = model.Email;
+        var fullName = model.FullName?.Trim() ?? string.Empty;
+        var fullNameError = ValidateFullName(fullName, user.Email);
+        if (fullNameError != null)
+        {
+            return BadRequest(new { message = fullNameError });
+        }
+
+        _dbContext.SetUserFullName(user, fullName);
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        return Ok(new { message = "Cập nhật hồ sơ thành công!" });
+        return Ok(new { message = "Cập nhật hồ sơ thành công!", fullName });
     }
 
     [HttpPost("logout")]
@@ -214,6 +282,42 @@ public class AuthController : ControllerBase
     public IActionResult AdminOnlyEndpoint()
     {
         return Ok(new { message = "Chào Admin! Đây là khu vực tối mật chỉ Admin mới có quyền truy cập." });
+    }
+
+    private static bool IsValidEmail(string value)
+    {
+        try
+        {
+            return string.Equals(new System.Net.Mail.MailAddress(value).Address, value, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string? ValidateFullName(string fullName, string? email)
+    {
+        var value = fullName?.Trim() ?? string.Empty;
+        if (value.Length == 0)
+        {
+            return "Vui lòng nhập họ tên.";
+        }
+        if (value.Length < 2 || value.Length > 50)
+        {
+            return "Họ tên phải có từ 2 đến 50 ký tự.";
+        }
+        if (value.Contains('<') || value.Contains('>'))
+        {
+            return "Họ tên không được chứa ký tự < hoặc >.";
+        }
+        if (!string.IsNullOrWhiteSpace(email) &&
+            string.Equals(value, email.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return "Họ tên không được trùng với email.";
+        }
+
+        return null;
     }
 
     /// <summary>

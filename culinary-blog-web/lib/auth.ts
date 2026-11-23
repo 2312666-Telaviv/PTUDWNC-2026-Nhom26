@@ -73,6 +73,7 @@ const credentialsConfig = Credentials({
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
         roles: Array.isArray(data.roles) ? data.roles : [],
+        isDefaultPassword: data.isDefaultPassword === true,
       };
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
@@ -92,7 +93,9 @@ const backendTokenConfig = Credentials({
     userId: { label: 'User Id', type: 'text' },
     email: { label: 'Email', type: 'email' },
     name: { label: 'Name', type: 'text' },
+    fullName: { label: 'Full Name', type: 'text' },
     roles: { label: 'Roles', type: 'text' },
+    isDefaultPassword: { label: 'Is Default Password', type: 'text' },
   },
   async authorize(credentials) {
     const token = credentials?.accessToken as string | undefined;
@@ -110,6 +113,7 @@ const backendTokenConfig = Credentials({
         id?: string;
         email?: string;
         userName?: string;
+        fullName?: string;
       };
 
       let roles: string[] = [];
@@ -123,10 +127,12 @@ const backendTokenConfig = Credentials({
       return {
         id: profile.id || (credentials?.userId as string),
         email: profile.email || (credentials?.email as string),
-        name: profile.userName || (credentials?.name as string) || null,
+        name: profile.fullName || (credentials?.name as string) || null,
+        fullName: profile.fullName || undefined,
         image: null,
         accessToken: token,
         roles,
+        isDefaultPassword: credentials?.isDefaultPassword === 'true',
       };
     } catch (error) {
       console.error('Lỗi xác thực token backend:', error);
@@ -152,13 +158,26 @@ const authConfig: NextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       // Lần đăng nhập đầu (Auth.js chỉ truyền account ở lần đăng nhập mới)
       if (user) {
         token.userId = user.id as string;
         token.accessToken = user.accessToken as string;
         token.refreshToken = user.refreshToken as string;
         token.roles = Array.isArray(user.roles) ? user.roles : [];
+        token.fullName = typeof user.fullName === 'string' ? user.fullName : undefined;
+        token.isDefaultPassword = user.isDefaultPassword === true;
+      }
+
+      if (trigger === 'update' && session && typeof session === 'object') {
+        const updated = session as { fullName?: string; name?: string };
+        if (typeof updated.fullName === 'string') {
+          token.fullName = updated.fullName;
+          token.name = updated.fullName;
+        }
+        if (typeof updated.name === 'string') {
+          token.name = updated.name;
+        }
       }
 
       // Google: đổi id_token lấy JWT backend rồi gắn accessToken/refreshToken của backend
@@ -185,6 +204,12 @@ const authConfig: NextAuthConfig = {
         session.user.id = token.userId as string;
         session.user.accessToken = token.accessToken as string;
         session.user.roles = Array.isArray(token.roles) ? token.roles : [];
+        session.user.role = session.user.roles.includes('Admin') ? 'Admin' : session.user.roles[0] ?? 'User';
+        session.user.fullName = typeof token.fullName === 'string' ? token.fullName : undefined;
+        if (typeof token.fullName === 'string' && token.fullName.trim()) {
+          session.user.name = token.fullName;
+        }
+        session.user.isDefaultPassword = token.isDefaultPassword === true;
       }
       return session;
     },

@@ -14,12 +14,13 @@ import type { ProfileDto, RecipeDto } from '@/types/api'
 import type { User } from '@/types/user'
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
 
   const [profile, setProfile] = useState<ProfileDto | null>(null)
+  const [fullName, setFullName] = useState('')
   const [myRecipes, setMyRecipes] = useState<RecipeDto[]>([])
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -32,6 +33,7 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [mustChangeDefaultPassword, setMustChangeDefaultPassword] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -39,6 +41,11 @@ export default function ProfilePage() {
       router.replace('/login?callbackUrl=/profile')
     }
   }, [session, status, router])
+
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    setMustChangeDefaultPassword(session.user.isDefaultPassword === true)
+  }, [session, status])
 
   useEffect(() => {
     if (status !== 'authenticated') return
@@ -50,11 +57,12 @@ export default function ProfilePage() {
         if (cancelled) return
         setProfile(data)
         setEmail(data.email)
+        setFullName(data.fullName)
       })
       .catch((err) => {
         if (cancelled) return
         if (isApiError(err) && err.statusCode === 401) {
-          void logoutFromBackend().then(() => router.replace('/login?callbackUrl=/profile'))
+          void logoutFromBackend({ redirectTo: '/login?callbackUrl=/profile' })
           return
         }
         setError(getApiErrorMessage(err, 'Không tải được thông tin hồ sơ từ API.'))
@@ -103,43 +111,58 @@ export default function ProfilePage() {
 
   if (!session?.user) return null
 
-  const displayName =
-    profile?.userName || user?.name || session.user.name || profile?.email || session.user.email || ''
+  const displayName = profile?.fullName || session.user.fullName || 'Chưa cập nhật'
   const displayEmail = profile?.email || session.user.email || user?.email || ''
   const displayRoles: string[] = session.user.roles || user?.roles || []
   const roleBadges = displayRoles.length ? displayRoles : ['User']
   const avatarUrl = user?.avatarUrl || session.user.image
-  const initial = (displayName || displayEmail || '?').trim().charAt(0).toUpperCase()
+  const initial = displayName === 'Chưa cập nhật' ? '?' : displayName.trim().charAt(0).toUpperCase()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Email không hợp lệ')
+    const normalizedFullName = fullName.trim()
+    if (!normalizedFullName) {
+      setError('Vui lòng nhập họ tên.')
+      return
+    }
+    if (normalizedFullName.length < 2 || normalizedFullName.length > 50) {
+      setError('Họ tên phải có từ 2 đến 50 ký tự.')
+      return
+    }
+    if (/[<>]/.test(normalizedFullName)) {
+      setError('Họ tên không được chứa ký tự < hoặc >.')
+      return
+    }
+    if (normalizedFullName.toLowerCase() === displayEmail.trim().toLowerCase()) {
+      setError('Họ tên không được trùng với email.')
       return
     }
     if (!profile) {
       setError('Thông tin hồ sơ chưa được tải xong. Vui lòng thử lại.')
       return
     }
-    if (email.trim() === profile.email) {
-      setSuccess('Email không có thay đổi.')
+    if (normalizedFullName === profile.fullName.trim()) {
+      setSuccess('Họ tên không có thay đổi.')
       return
     }
 
     setIsSaving(true)
     try {
-      await authService.updateProfile({ email: email.trim() })
+      await authService.updateProfile({ fullName: normalizedFullName })
       const refreshed = await authService.getProfile()
       setProfile(refreshed)
+      setFullName(refreshed.fullName)
       setEmail(refreshed.email)
 
+      const nameForSession = refreshed.fullName || 'Thành viên Culinary Blog'
       const updatedUser: User = {
         id: refreshed.id,
         email: refreshed.email,
-        name: refreshed.userName || user?.name || refreshed.email,
+        name: nameForSession,
+        fullName: refreshed.fullName,
         avatarUrl: user?.avatarUrl ?? null,
         roles: displayRoles,
       }
@@ -148,12 +171,14 @@ export default function ProfilePage() {
         {
           id: refreshed.id,
           email: refreshed.email,
-          userName: updatedUser.name,
-          name: updatedUser.name,
+          userName: nameForSession,
+          name: nameForSession,
+          fullName: refreshed.fullName,
         },
         useAuthStore.getState().accessToken || ''
       )
-      setSuccess('Cập nhật email thành công.')
+      await update({ fullName: refreshed.fullName, name: nameForSession })
+      setSuccess('Cập nhật họ tên thành công.')
     } catch (err) {
       setError(getApiErrorMessage(err, 'Cập nhật thất bại. Vui lòng thử lại.'))
     } finally {
@@ -191,6 +216,16 @@ export default function ProfilePage() {
         newPassword,
       })
       setPasswordSuccess('Đổi mật khẩu thành công')
+      setMustChangeDefaultPassword(false)
+      setUser({
+        id: user?.id || session.user.id || '',
+        email: displayEmail,
+        name: profile?.fullName || 'Thành viên Culinary Blog',
+        fullName: profile?.fullName || '',
+        avatarUrl: user?.avatarUrl ?? session.user.image ?? null,
+        roles: displayRoles,
+        isDefaultPassword: false,
+      })
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -202,8 +237,7 @@ export default function ProfilePage() {
   }
 
   const handleLogout = async () => {
-    await logoutFromBackend()
-    router.replace('/login')
+    await logoutFromBackend({ redirectTo: '/login' })
   }
 
   return (
@@ -215,6 +249,26 @@ export default function ProfilePage() {
             Thông tin tài khoản được lấy trực tiếp từ API backend.
           </p>
         </div>
+
+        {mustChangeDefaultPassword && (
+          <div
+            role="alert"
+            className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-sm text-red-800"
+          >
+            <div>
+              <p className="font-semibold">Bạn đang dùng mật khẩu mặc định, vui lòng đổi ngay</p>
+              <p className="mt-1 text-red-700">
+                Mật khẩu seed chỉ dùng để demo. Hãy đổi trước khi tiếp tục sử dụng tài khoản này.
+              </p>
+            </div>
+            <Link
+              href="#change-password"
+              className="inline-flex items-center rounded-xl bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700"
+            >
+              Đổi mật khẩu ngay
+            </Link>
+          </div>
+        )}
 
         <section className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm">
           <div className="h-24 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-300 sm:h-28" />
@@ -309,9 +363,16 @@ export default function ProfilePage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-gray-500">Tên đăng nhập</dt>
-                  <dd className="mt-1 font-medium text-gray-900">{profile?.userName || displayName}</dd>
+                  <dt className="text-gray-500">Họ tên</dt>
+                  <dd className="mt-1 font-medium text-gray-900">{displayName}</dd>
                 </div>
+                {profile?.userName &&
+                  profile.userName.toLowerCase() !== displayEmail.trim().toLowerCase() && (
+                    <div>
+                      <dt className="text-gray-500">Tên đăng nhập</dt>
+                      <dd className="mt-1 font-medium text-gray-900">{profile.userName}</dd>
+                    </div>
+                  )}
                 <div>
                   <dt className="text-gray-500">Email</dt>
                   <dd className="mt-1 break-all font-medium text-gray-900">{displayEmail || 'Chưa cập nhật'}</dd>
@@ -330,13 +391,34 @@ export default function ProfilePage() {
               className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm"
             >
               <div className="mb-5">
-                <h2 className="text-lg font-semibold text-gray-900">Cập nhật email</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Cập nhật họ tên</h2>
                 <p className="mt-1 text-sm text-gray-600">
-                  Backend hiện hỗ trợ cập nhật email qua PUT /api/v1/auth/profile.
+                  Họ tên được hiển thị trên công thức và bài viết. Email vẫn là tên đăng nhập.
                 </p>
               </div>
 
               <div>
+                <label htmlFor="profile-full-name" className="form-label">
+                  Họ và tên
+                </label>
+                <input
+                  id="profile-full-name"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value)
+                    setError(null)
+                    setSuccess(null)
+                  }}
+                  className="input w-full"
+                  placeholder="Nguyễn Văn A"
+                  maxLength={50}
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">Tối đa 50 ký tự, không trùng email.</p>
+              </div>
+
+              <div className="mt-4">
                 <label htmlFor="profile-email" className="form-label">
                   Email
                 </label>
@@ -344,9 +426,8 @@ export default function ProfilePage() {
                   id="profile-email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input w-full"
-                  placeholder="Nhập email"
+                  readOnly
+                  className="input w-full bg-gray-50 text-gray-600"
                 />
               </div>
 
@@ -369,8 +450,9 @@ export default function ProfilePage() {
             </form>
 
             <form
+              id="change-password"
               onSubmit={handlePasswordSubmit}
-              className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm scroll-mt-6"
             >
               <div className="mb-5">
                 <h2 className="text-lg font-semibold text-gray-900">Đổi mật khẩu</h2>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { RecipeDto } from '@/types/api';
 import { LikeButton } from '@/components/recipe/LikeButton';
 import { DeleteRecipeButton } from '@/components/recipe/DeleteRecipeButton';
-import { formatDate } from '@/lib/utils/format';
+import { formatAuthorName, formatDate } from '@/lib/utils/format';
 import { slugify } from '@/lib/utils/slugify';
 
 interface RecipeDetailProps {
@@ -61,7 +61,7 @@ export function RecipeDetail({ recipe, canEdit = false }: RecipeDetailProps) {
 
         <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
           <span>
-            Tác giả: <span className="font-medium text-gray-700">{recipe.authorName}</span>
+            Tác giả: <span className="font-medium text-gray-700">{formatAuthorName(recipe.authorName)}</span>
           </span>
           <span>
             Đăng ngày{' '}

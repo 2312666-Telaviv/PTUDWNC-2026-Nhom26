@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CoverImage } from '@/components/blog/CoverImage';
-import { formatDate, formatNumber } from '@/lib/utils/format';
+import { formatAuthorName, formatDate, formatNumber } from '@/lib/utils/format';
 import { BlogPost } from '@/types/blog';
 
 interface PostCardProps {
@@ -11,7 +11,8 @@ interface PostCardProps {
 
 /** Thẻ hiển thị một bài viết trong lưới bài viết ở trang chủ /blog */
 export function PostCard({ post, priority = false }: PostCardProps) {
-  const authorInitial = post.author.name.trim().charAt(0).toUpperCase();
+  const authorName = formatAuthorName(post.author.name);
+  const authorInitial = authorName.trim().charAt(0).toUpperCase();
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-orange-100 bg-white shadow-sm transition hover:shadow-md">
@@ -52,7 +53,7 @@ export function PostCard({ post, priority = false }: PostCardProps) {
               {authorInitial}
             </div>
             <div className="text-xs">
-              <p className="font-medium text-gray-800">{post.author.name}</p>
+              <p className="font-medium text-gray-800">{authorName}</p>
               <p className="text-gray-400">{formatDate(post.publishedAt)}</p>
             </div>
           </div>

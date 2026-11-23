@@ -14,7 +14,7 @@ export async function getSessionActor(): Promise<SessionActor | null> {
 
   return {
     id: session.user.id,
-    name: session.user.name || session.user.email || 'Người dùng',
+    name: session.user.fullName || 'Thành viên Culinary Blog',
     roles: Array.isArray(session.user.roles) ? session.user.roles : [],
   };
 }
