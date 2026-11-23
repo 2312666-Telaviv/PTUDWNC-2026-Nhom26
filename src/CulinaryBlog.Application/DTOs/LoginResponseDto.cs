@@ -20,6 +20,11 @@ public class LoginResponseDto
     /// <summary>Tên hiển thị.</summary>
     public string? Name { get; set; }
 
+    public string? FullName { get; set; }
+
     /// <summary>Danh sách role của người dùng.</summary>
     public IReadOnlyList<string> Roles { get; set; } = Array.Empty<string>();
+
+    /// <summary>User đang dùng mật khẩu seed mặc định và cần đổi ngay.</summary>
+    public bool IsDefaultPassword { get; set; }
 }

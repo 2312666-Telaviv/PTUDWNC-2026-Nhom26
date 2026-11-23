@@ -7,10 +7,12 @@ export interface User {
   email: string;
   // Tên hiển thị (họ tên hoặc nickname)
   name: string;
+  fullName?: string;
   // Ảnh đại diện, có thể chưa có
   avatarUrl?: string | null;
   // Danh sách quyền: 'Admin' | 'User' (khớp với role phía backend)
   roles?: string[];
+  isDefaultPassword?: boolean;
   // Thông tin bổ sung cho hồ sơ (từ nhánh Linh)
   phone?: string | null;
   bio?: string | null;

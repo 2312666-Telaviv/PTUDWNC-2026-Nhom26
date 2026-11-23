@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { useAuthUser } from '@/store/auth-store';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatAuthorName, formatDateTime } from '@/lib/utils/format';
 import { BlogComment } from '@/types/blog';
 
 interface BlogCommentsProps {
@@ -34,7 +34,7 @@ export function BlogComments({ postId, initialComments }: BlogCommentsProps) {
     const newComment: BlogComment = {
       id: `local-${postId}-${comments.length + 1}`,
       postId,
-      authorName: currentUser?.name ?? 'Ẩn danh',
+      authorName: formatAuthorName(currentUser?.fullName || currentUser?.name),
       authorAvatarUrl: currentUser?.avatarUrl ?? null,
       content: trimmed,
       createdAt: new Date().toISOString(),
@@ -87,7 +87,8 @@ export function BlogComments({ postId, initialComments }: BlogCommentsProps) {
       ) : (
         <ul className="space-y-4">
           {comments.map((comment) => {
-            const initial = comment.authorName.trim().charAt(0).toUpperCase();
+            const authorName = formatAuthorName(comment.authorName);
+            const initial = authorName.trim().charAt(0).toUpperCase();
 
             return (
               <li
@@ -100,7 +101,7 @@ export function BlogComments({ postId, initialComments }: BlogCommentsProps) {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-gray-900">
-                      {comment.authorName}
+                      {authorName}
                     </span>
                     <span className="text-xs text-gray-400">
                       {formatDateTime(comment.createdAt)}

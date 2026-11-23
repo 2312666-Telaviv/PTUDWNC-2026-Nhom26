@@ -97,7 +97,21 @@ export interface LoginResponseDto {
   userId: string;
   email: string;
   name?: string | null;
+  fullName?: string | null;
   roles: string[];
+  isDefaultPassword?: boolean;
+}
+
+export type AdminRole = 'Admin' | 'User';
+
+export interface AdminUserDto {
+  id: string;
+  email: string;
+  fullName: string;
+  role: AdminRole;
+  isLocked: boolean;
+  isDefaultPassword?: boolean;
+  createdAt: string;
 }
 
 export interface AssignRoleRequest {
@@ -135,13 +149,15 @@ export interface ProfileDto {
   id: string;
   email: string;
   userName: string;
+  fullName: string;
   name?: string;
 }
 
 export interface RegisterRequest {
+  fullName: string;
   email: string;
   password: string;
-  name?: string;
+  confirmPassword: string;
 }
 
 export interface LoginRequest {
@@ -166,7 +182,7 @@ export interface ResetPasswordRequest {
 }
 
 export interface UpdateProfileRequest {
-  email: string;
+  fullName: string;
 }
 
 export interface LoginResponse {

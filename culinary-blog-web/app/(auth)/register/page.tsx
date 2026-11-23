@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AuthRegisterForm } from '@/components/auth/AuthRegisterForm';
-import { AuthStoreHydration } from '@/components/auth/AuthStoreHydration';
 import {
   Card,
   CardContent,
@@ -19,8 +18,6 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-orange-50/50 px-4 py-10 sm:py-16">
-      <AuthStoreHydration />
-
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Tạo tài khoản</CardTitle>

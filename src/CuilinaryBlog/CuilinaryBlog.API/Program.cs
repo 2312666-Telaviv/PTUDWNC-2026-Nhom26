@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -232,6 +233,8 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    var dbContext = scope.ServiceProvider.GetRequiredService<CulinaryBlog.Infrastructure.Persistence.ApplicationDbContext>();
+
     // Tài khoản demo để đăng nhập ngay sau khi chạy ứng dụng
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     const string demoEmail = "demo@culinaryblog.com";
@@ -251,6 +254,15 @@ using (var scope = app.Services.CreateScope())
         {
             await userManager.AddToRoleAsync(demoUser, "User");
         }
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        await SeedAdminAsync(
+            builder.Configuration,
+            userManager,
+            roleManager,
+            dbContext);
     }
 }
 
@@ -418,6 +430,96 @@ app.MapOpenApi();
 app.MapScalarApiReference();
 
 app.Run();
+
+static async Task SeedAdminAsync(
+    IConfiguration configuration,
+    UserManager<IdentityUser> userManager,
+    RoleManager<IdentityRole> roleManager,
+    CulinaryBlog.Infrastructure.Persistence.ApplicationDbContext dbContext)
+{
+    var email = configuration["SeedAdmin:Email"];
+    var password = configuration["SeedAdmin:Password"];
+    var roleName = configuration["SeedAdmin:Role"] ?? "Admin";
+    var forceResetPassword = string.Equals(
+        configuration["SeedAdmin:ForceResetPassword"],
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    if (string.Equals(roleName, "admin", StringComparison.OrdinalIgnoreCase))
+    {
+        roleName = "Admin";
+    }
+
+    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+    {
+        return;
+    }
+
+    if (!await roleManager.RoleExistsAsync(roleName))
+    {
+        var roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+        if (!roleResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Không thể tạo role {roleName}: {string.Join("; ", roleResult.Errors.Select(error => error.Description))}");
+        }
+    }
+
+    var admin = await userManager.FindByEmailAsync(email);
+    if (admin == null)
+    {
+        admin = new IdentityUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true
+        };
+        dbContext.SetUserFullName(admin, "Quản trị viên");
+
+        var createResult = await userManager.CreateAsync(admin, password);
+        if (!createResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Không thể tạo admin {email}: {string.Join("; ", createResult.Errors.Select(error => error.Description))}");
+        }
+
+        dbContext.SetUserCreatedAt(admin, DateTime.UtcNow);
+        dbContext.SetIsDefaultPassword(admin, true);
+    }
+    else if (forceResetPassword)
+    {
+        var resetToken = await userManager.GeneratePasswordResetTokenAsync(admin);
+        var resetResult = await userManager.ResetPasswordAsync(admin, resetToken, password);
+        if (!resetResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Không thể đặt lại mật khẩu admin {email}: {string.Join("; ", resetResult.Errors.Select(error => error.Description))}");
+        }
+
+        dbContext.SetIsDefaultPassword(admin, true);
+    }
+    else if (await userManager.CheckPasswordAsync(admin, password))
+    {
+        dbContext.SetIsDefaultPassword(admin, true);
+    }
+
+    if (string.IsNullOrWhiteSpace(dbContext.GetUserFullName(admin)))
+    {
+        dbContext.SetUserFullName(admin, "Quản trị viên");
+    }
+
+    await dbContext.SaveChangesAsync();
+
+    if (!await userManager.IsInRoleAsync(admin, roleName))
+    {
+        var roleAssignmentResult = await userManager.AddToRoleAsync(admin, roleName);
+        if (!roleAssignmentResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Không thể gán role {roleName} cho {email}: {string.Join("; ", roleAssignmentResult.Errors.Select(error => error.Description))}");
+        }
+    }
+}
 
 static string SeedImage(string photoId) =>
     $"https://images.unsplash.com/{photoId}?auto=format&fit=crop&w=1200&q=80";

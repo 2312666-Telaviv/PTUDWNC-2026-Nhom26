@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowRight, Search, Sparkles } from 'lucide-react';
+import { HeroCarousel } from '@/components/home/HeroCarousel';
 import { LatestRecipesSection } from '@/components/home/LatestRecipesSection';
 import { LatestRecipesSkeleton } from '@/components/home/LatestRecipesSkeleton';
 import { TrendingCategories } from '@/components/home/TrendingCategories';
@@ -14,9 +14,6 @@ export const metadata: Metadata = {
   title: 'Trang chủ',
   description: 'Khám phá công thức nấu ăn Việt Nam mới nhất, theo danh mục và chia sẻ từ cộng đồng.',
 };
-
-const heroImage =
-  'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1400&q=80';
 
 export default async function HomePage({
   searchParams,
@@ -94,26 +91,7 @@ export default async function HomePage({
           </div>
 
           <div className="relative">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-xl shadow-orange-900/10">
-              <Image
-                src={heroImage}
-                alt="Món ăn Việt Nam hấp dẫn"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-              <div className="absolute bottom-5 left-5 rounded-2xl bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">
-                  Gợi ý hôm nay
-                </p>
-                <p className="mt-0.5 text-base font-bold text-gray-900">Hương vị nhà mình</p>
-              </div>
-            </div>
-            <div className="absolute -left-3 top-8 hidden rounded-2xl bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-lg sm:block">
-              Món ngon mỗi ngày
-            </div>
+            <HeroCarousel />
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useInfiniteComments } from '@/hooks/useComments';
 import { recipeKeys } from '@/hooks/useRecipes';
 import apiClient from '@/lib/api/axios';
+import { formatAuthorName } from '@/lib/utils/format';
 
 export function CommentSection({ recipeId }: { recipeId: number }) {
   const { data: session, status } = useSession();
@@ -85,7 +86,7 @@ export function CommentSection({ recipeId }: { recipeId: number }) {
           {comments.map((comment) => (
             <div key={comment.id} className="rounded-md border border-gray-200 p-4">
               <div className="mb-1 flex items-center justify-between">
-                <span className="font-medium text-gray-900">{comment.authorName}</span>
+                <span className="font-medium text-gray-900">{formatAuthorName(comment.authorName)}</span>
                 <span className="text-xs text-gray-500">
                   {new Date(comment.createdAt).toLocaleString('vi-VN')}
                 </span>

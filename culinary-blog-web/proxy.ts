@@ -9,7 +9,7 @@ const PROTECTED_PREFIXES = ['/dashboard', '/recipes/new', '/profile'];
 const EDIT_RECIPE_REGEX = /^\/recipes\/[^/]+\/edit(\/|$)/;
 
 // CÃ¡c trang chá»‰ dÃ nh cho khÃ¡ch chÆ°a Ä‘Äƒng nháº­p
-const AUTH_ONLY_PATHS = ['/login', '/register'];
+const AUTH_ONLY_PATHS = ['/login'];
 
 function isProtectedPath(pathname: string): boolean {
   if (PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
